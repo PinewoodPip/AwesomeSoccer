@@ -36,3 +36,518 @@
     transform: rotate(360deg);
   }
 }
+
+/* WARDROBE */
+.wardrobe-category-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wardrobe-items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.wardrobe-item {
+  width: 64px;
+  height: 64px;
+  border: rgb(48, 48, 48) 1px solid;
+  margin: 2.5px;
+}
+
+.wardrobe-item img {
+  width: inherit;
+  height: inherit;
+  image-rendering: pixelated;
+}
+
+/*  */
+.logo {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.logo a {
+  margin-top: 10px;
+}
+
+.game-container-holder {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 90%;
+  margin: 0 auto; /* centering */
+}
+
+.game-tab {
+  width: 400px;
+  height: 500px;
+  border: 1px solid;
+}
+
+.color {
+  width: 25px;
+  height: 25px;
+  border: rgb(48, 48, 48) 2px solid;
+  background-color: black;
+  margin: 2.5px;
+  line-height: 25px;
+}
+
+.color-lock {
+  line-height: 25px;
+  margin: 0;
+}
+
+.combat-log {
+  width: 100%;
+  font-size: 20px;
+  height: 330px;
+  /* border: 1px black solid; */
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  overflow: auto;
+  border-top: 1px black solid;
+  padding-top: 10px;
+}
+
+.combat-log p {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.combat-log hr {
+  border: 1px gray solid;
+  width: 90%;
+}
+
+.backgrounds-elements {
+  display: flex;
+  margin: 10px;
+  align-self: center;
+  justify-content: space-around;
+}
+
+/* --------------- LOADING BAR --------------- */
+.progress-bar-overlay {
+  display: flex;
+  justify-content: flex-start;
+  position: absolute;
+  z-index: 10;
+  /* transform: translateY(-100%); */
+  height: 40px;
+  width: 250px;
+
+  clip-path: inset(0px, 40px, 0px, 40px);
+  -webkit-clip-path: inset(0px, 40px, 0px, 40px);
+}
+
+/* .progress-bar-parent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+}
+
+.progress-bar-bg {
+  height: 40px;
+  width: 250px;
+}
+
+.progress-bar-parent .progress-bar-bg {
+  width: 250px;
+  height: 40px;
+}
+
+.progress-bar-parent p {
+  z-index: 100;
+  line-height: 45px;
+  text-align: center;
+  width: 250px;
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  color: aliceblue;
+} */
+
+/*  */
+.progress-bar {
+  position: relative;
+  height: 30px;
+  width: 220px;
+  border-radius: 50px;
+  border: 1px solid #333;
+}
+
+.filler {
+  background: #506972;
+  height: inherit;
+  border-radius: inherit;
+  transition: width .2s ease-in;
+}
+
+.progress-bar-parent {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.progress-bar-badge-holder {
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  transform: translateY(-25%);
+}
+
+.progress-bar-badge {
+  width: 60px;
+  height: 60px;
+  opacity: 0.9;
+  z-index: 999;
+}
+
+.progress-bar p {
+  margin: 0;
+  line-height: 30px;
+}
+
+.progress-bar-text {
+  width: 100%;
+  transform: translate(15px, -100%);
+  line-height: 30px;
+  margin: 0;
+  color: aliceblue;
+}
+
+.progress-bar-level {
+  z-index: 10;
+  line-height: 30px;
+  margin: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  position: absolute;
+  font-size: 20px;
+  color: aliceblue;
+  opacity: 1,
+}
+
+.xp-bar {
+  z-index: -99999;
+  height: 5px;
+  position: relative;
+  width: 195px;
+  border-radius: 50px;
+  border: 1px solid rgba(51, 51, 51, 0);
+}
+
+.xp-bar-fill {
+  z-index: inherit;
+  background: #00ddc8 !important;
+}
+
+/* --------------- BALL PANEL --------------- */
+
+.balls-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ball-icon {
+  width: 64px;
+  height: 64px;
+  border: rgb(48, 48, 48) 2px solid;
+  margin: 2.5px;
+}
+
+.ball-icon img {
+  width: 64px;
+  height: 64px;
+}
+
+/* --------------- BALLBUTTON PANEL --------------- */
+
+
+.result-display {
+  height: 60px;
+  margin-top: 20px;
+}
+
+.ball-area {
+  margin: 0 auto;
+  margin-top: 10%;
+  width: 282px;
+  height: 282px;
+  -webkit-transform: perspective(1px) translateZ(0);
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-transition-duration: 0.1s;
+  transition-duration: 0.1s;
+  -webkit-transition-property: transform;
+  transition-property: transform;
+}
+
+.trophy-win {
+  width: 64px;
+  height: 64px;
+  /* content: url("/Icons/trophy_win.svg"); */
+  image-rendering: pixelated;
+  z-index: -1;
+  transition: 0.1s;
+}
+
+.trophy-lose {
+  width: 64px;
+  height: 64px;
+  /* content: url("/Icons/trophy_lose.svg"); */
+  image-rendering: pixelated;
+  z-index: -1;
+  transition: 0.1s;
+}
+
+.ball-area:hover, .hvr-grow:focus {
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05) perspective(1px);
+
+  background-image: url("/UI/frame_blue.png");
+  background-size: 282px 282px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  z-index: 10;
+}
+
+.ball-area:active {
+  -webkit-transform: scale(0.95);
+  transform: scale(0.95) perspective(1px); 
+}
+
+.ball-text {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  font-size: 55px;
+  color: aliceblue
+}
+
+.leg-break-img {
+  background-image: url("/UI/legbreakalert.png");
+  background-repeat: no-repeat;
+  background-position-x: 50%;
+  background-position-y: 0%;
+  background-size: 254px 44px;
+  width: 282px;
+  height: 65px;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+/* --------------- STATS --------------- */
+.stats-icon {
+  height: 20px;
+  margin-right: 8px;
+}
+
+.stat {
+  height: 16px;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --------------- BUTTONS --------------- */
+Button {
+  background-image: url("Assets/UI/button.gif");
+  background-repeat: no-repeat;
+  width: 199px;
+  height: 39px;
+}
+
+Button[disabled] {
+  background-image: url("Assets/UI/button_disabled.gif");
+  color: aliceblue;
+}
+
+.button-icon {
+  position: absolute;
+  height: 35px;
+  transform: translate(5%, 2px); /* wtf?!?!? */
+}
+
+Button:hover {
+  background-image: url("Assets/UI/button_selected.gif");
+}
+
+Button:hover[disabled="true"] { /* fix this*/
+  background-image: url("Assets/UI/button_disabled.gif");
+}
+
+Button:active {
+  background-image: url("Assets/UI/button_disabled.gif");
+}
+
+.arrow-button {
+  width: 30px;
+  height: 30px;
+}
+
+.arrow-button:hover {
+  filter: brightness(110%);
+}
+
+.arrow-button:active {
+  filter: brightness(80%);
+}
+
+/* --------------- POP-UPS --------------- */
+
+.popup-cover {
+  position: fixed;
+  padding:0;
+  margin:0;
+  top:0;
+  left:0;
+  width: 100%;
+  height: 100%;
+  background:rgba(150, 216, 207, 0.5);
+  z-index: 998;
+}
+
+.pop-up-parent {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.popup-box {
+  z-index: 999;
+  background-color: gray;
+  border: 1px black solid;
+  width: 550px;
+  height: 350px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%)
+}
+
+.pop-up-title {
+  font-size: 24px;
+}
+
+.pop-up-desc {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.pop-up-box {
+  /* display: flex; */
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: center;
+}
+
+.pop-up-buttons {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+/* --------------- MISC --------------- */
+.icons-flexbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  border: rgb(48, 48, 48) 1px solid;
+  margin: 2.5px;
+}
+
+.icon img {
+  width: inherit;
+  height: inherit;
+  image-rendering: pixelated;
+}
+
+.your-turn {
+  color: red;
+  stroke: black 0.7px;
+  -webkit-text-stroke: black 0.7px;
+  height: 18px;
+}
+
+.generic-tooltip {
+  text-align: center;
+  line-height: 8px;
+}
+.margin-bottom {
+  margin-bottom: 20px;
+}
+
+.margin-top {
+  margin-top: 20px;
+}
+
+.absolute-centered {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.big-text {
+  font-size: 20px;
+}
+
+.stroke {
+  stroke: 0.7px black;
+  -webkit-text-stroke-width: 0.7px;
+  -webkit-text-stroke-color: black;
+}
+
+.red-text {
+  color: red;
+}
+
+.win-color {
+  color: #ff6803;
+}
+
+.lose-color {
+  color: #03e2ff;
+}
+
+.body {
+  background-color: lightblue;
+}

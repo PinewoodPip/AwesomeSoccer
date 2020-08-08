@@ -1,0 +1,55 @@
+engraved ring of healing:
+- now grants instant healing upon victory; 20% of max hp
+- now increases OOC regen by 4% of your max hp
+
+changed text in wardrobe
+looting dry streak boost is now 0.05, down from 0.1
+skills no longer get a dmg bonus from willpower NO
+breakdawner use text changed
+nerfed intderbow dot?
+combat log now has a scrollbar
+gym is now accessed from the "shop"
+minor changes to some text
+
+
+
+--- todo
+- perk shop
+- special ball powers
+- randomized strings for some popups, like unable to buy perks
+- support jsx for popup msg
+- LEG BREAKS!!!
+- convert artifact and weapon data to use new images system
+- fix ball button img and trophy
+- organize the way we import images
+- soccer moves
+- the flow
+- willpower
+- levelup milestones
+- lock travel until lvl req
+- perk/artifact that reimplements wp extra damage
+- wp gain mult stat
+- getAverageDmg should maybe consider armor
+- unequip button
+- set ballbutton to not be interactable during enemy turn
+- add unlock checks to the icon buttons, and grey them out if not unlocked
+X round wp and sweat
+X make enemies pick skills
+- add animation to your turn text
+- dont show tooltip for statuses when there are none
+- saving
+- cheat buttons
+X make stacks work on dots
+X fix 0 duration statuses when stacked
+- combat log improvements
+X improve miss text
+
+// effects
+X display
+- clearing on combat
+- ooc statuses
+X LOGGING
+X FIX DURATION BEING DECREASED BY 2
+
+next:
+- every weapon
