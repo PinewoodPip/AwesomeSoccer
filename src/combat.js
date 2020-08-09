@@ -43,6 +43,9 @@ export class Entity {
   statuses = [];
   _willpower = 0;
   _sweat = 0;
+  get willpowerMult() {
+    return 1;
+  }
 
   get hp() {return utils.round(this._hp)}
   set hp(val) {this._hp = Math.max(Math.min(val, this.maxHp), 0);}
@@ -59,8 +62,8 @@ export class Entity {
   get willpowerPercentage() {return this.willpower * 100};
   get sweatPercentage() {return this.sweat * 100};
   get willpower() {return utils.round(this._willpower)}
-  set willpower(val) {
-    this._willpower = Math.min(Math.max(val, 0), this.maxWillpower)
+  set willpower(val) { // make this a func
+    this._willpower = Math.min(Math.max(val * this.willpowerMult, 0), this.maxWillpower)
   }
   get maxWillpower() {return 1}; //todo
   get sweat() {return utils.round(this._sweat)}
@@ -94,6 +97,16 @@ export class Entity {
           status.reduceDuration(); // should this be handled within the status methods?
           break;
         }
+      }
+    }
+  }
+
+  removeCombatStatuses() {
+    for (let x in this.statuses) {
+      let status = this.statuses[x];
+
+      if (!status.def.ooc) {
+        this.removeStatus(status);
       }
     }
   }
@@ -267,6 +280,16 @@ export class Player extends Entity {
   }
 
   get isPlayer() {return true;}
+  get willpowerMult() {
+    let mult = 1;
+
+    let flow = travel.getPerk("flow")
+    if (flow.unlocked) {
+      mult += flow.tuning.baseBoost + (flow.tuning.levelboost * flow.level-1)
+    }
+
+    return mult;
+  }
 }
 
 export class Enemy extends Entity {

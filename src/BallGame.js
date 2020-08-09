@@ -240,6 +240,36 @@ class ColorManager {
     unlocked: ["awesomeBlue"]
   }
 
+  get collectionCompleted() {
+    for (let x in data.colors) {
+      if (!this.state.unlocked.includes(data.colors[x].id))
+        return false;
+    }
+    return true;
+  }
+
+  unlockRandom() {
+    let totalWeight = 0;
+    let unlockables = [];
+    for (let x in data.colors) {
+      if (!this.state.unlocked.includes(data.colors[x])) {
+        unlockables.push(data.colors[x]);
+        totalWeight += data.colors[x].weight;
+      }
+    }
+    let seed = Math.random() * totalWeight
+    let unlock;
+    for (let x in unlockables) {
+      seed -= unlockables[x].weight
+      if (seed <= 0) {
+        unlock = unlockables[x]
+        break;
+      }
+    }
+    this.unlock(unlock.id);
+    return unlock;
+  }
+
   unlock(id) {
     if (!this.state.unlocked.includes(id))
       this.state.unlocked.push(id)
@@ -252,7 +282,13 @@ class ColorManager {
       })
     }
     else {
-      window.alert("tmp")
+      main.addPopup({
+        title: "LOCKED!",
+        description: "You don't own this color (YET)!",
+        buttons: [
+          data.popupButtons.close,
+        ]
+      })
     }
   }
 }
@@ -345,8 +381,33 @@ class Levelling {
   }
 
   checkMilestones() {
+    let desc = "";
+
     if (this.lpMilestones.includes(this.state.level)) {
       stats.addLegs(1);
+      desc += "You have gained 1 Legendary Point!"
+    }
+
+    if (this.gmgMilestones.includes(this.state.level)) {
+      travel.state.giftcards++;
+      desc += "You have gained a Gym Membership Giftcard!"
+    }
+
+    if (this.state.level % 5 == 0) {
+      if (!colorManager.collectionCompleted) {
+        let color = colorManager.unlockRandom();
+        desc += utils.format("You have unlocked the '{0}' background color!", color.name)
+      }
+    }
+
+    if (desc != "") {
+      main.addPopup({
+        title: "LEVEL UP MILESTONE!",
+        description: desc,
+        buttons: [
+          data.popupButtons.excitedClose,
+        ]
+      })
     }
   }
 
@@ -385,6 +446,12 @@ export class TravelManager {
         },
         perks: {
           legendary_strikes: {
+            level: 0,
+          },
+          flow: {
+            level: 0,
+          },
+          art_of_the_steal: {
             level: 0,
           }
         }
@@ -570,13 +637,18 @@ export class CombatManager {
 
   oocTick() {
     if (!combatManager.inCombat) {
-      var heal = combatManager.OOCHealing;
+      let player = combatManager.player;
+      let heal = combatManager.OOCHealing;
       if (travel.hasArtifact("engraved_ring"))
         heal += combatManager.player.maxHp * 0.04;
       combatManager.player.heal(heal);
 
       combatManager.player.loseWillpower(combatManager.OOCWillpowerDrain)
       combatManager.player.loseSweat(combatManager.OOC_SWEAT_DRAIN)
+
+      for (let x in player.statuses) {
+        player.statuses[x].onOOCTurn();
+      }
 
       main.render();
     }
@@ -653,10 +725,11 @@ export class CombatManager {
 
     if (entity.isDead) {
       if (entity.isPlayer) {
-        this.endCombat("defeat")
+        setTimeout(() => {this.endCombat("defeat")}, this.TURN_DELAY)
+        // this.endCombat("defeat")
       }
       else {
-        this.endCombat("win")
+        setTimeout(() => {this.endCombat("win")}, this.TURN_DELAY)
       }
     }
     else {
@@ -687,6 +760,19 @@ export class CombatManager {
       })
     }
     else {
+      this.log.push("You have been defeated and give up.")
+
+      setTimeout(() => {
+        this.closeCombat();
+        main.addPopup({
+          title: "DEFEAT",
+          description: "temp",
+          buttons: [
+            data.popupButtons.close,
+          ]
+        })
+      }, this.TURN_DELAY);
+
 
     }
   }
@@ -696,6 +782,7 @@ export class CombatManager {
     this.enemy = null;
     this.area = null;
     this.inCombat = false;
+    this.player.removeCombatStatuses();
     this.log.clear();
   }
 

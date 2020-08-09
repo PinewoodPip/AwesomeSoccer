@@ -11,46 +11,55 @@ export const images = {
 export const colors = {
     awesomeBlue: {
         name: "Awesome Blue",
+        id: "awesomeBlue",
         color: "#add8e6",
         weight: 100,
     },
     calidAugust: {
         name: "Calid August",
+        id: "calidAugust",
         color: "#ffffc5",
         weight: 100,
     },
     cardinalTropic: {
         name: "Cardinal Tropic",
+        id: "cardinalTropic",
         color: "#7ecfc0",
         weight: 80,
     },
     refuge: {
         name: "Refuge",
+        id: "refuge",
         color: "#7957c9",
         weight: 70,
     },
     smellOfMushroom: {
         name: "The Smell of Mushroom",
+        id: "smellOfMushroom",
         color: "#ffba92",
         weight: 80,
     },
     distantMemory: {
         name: "Distant Memory",
+        id: "distantMemory",
         color: "#d5a4cf",
         weight: 100,
     },
     dated: {
         name: "Dated",
+        id: "dated",
         color: "#fffafa",
         weight: 100,
     },
     junglic: {
         name: "Junglic",
+        id: "junglic",
         color: "#709078",
         weight: 100,
     },
     pineWoods: {
         name: "The Pine Woods",
+        id: "pineWoods",
         color: "#40692e",
         weight: 30,
     },
@@ -210,6 +219,10 @@ export const artifacts = {
 export const popupButtons = {
     close: {
         text: "CLOSE",
+        func: () => {},
+    },
+    excitedClose: {
+        text: "REPLACE THIS",
         func: () => {},
     }
 }

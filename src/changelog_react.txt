@@ -10,7 +10,8 @@ nerfed intderbow dot?
 combat log now has a scrollbar
 gym is now accessed from the "shop"
 minor changes to some text
-
+upon ending battle, the popup takes place within the battle
+//changed badge tiers: the initial circle badge now is used longer
 
 
 --- todo
@@ -20,15 +21,16 @@ minor changes to some text
 - support jsx for popup msg
 - LEG BREAKS!!!
 - convert artifact and weapon data to use new images system
-- fix ball button img and trophy
-- organize the way we import images
+X fix ball button img and trophy
+X organize the way we import images
 - soccer moves
-- the flow
+- make ball not move when its clicked first time
+X the flow
 - willpower
-- levelup milestones
+X levelup milestones
 - lock travel until lvl req
 - perk/artifact that reimplements wp extra damage
-- wp gain mult stat
+X wp gain mult stat
 - getAverageDmg should maybe consider armor
 - unequip button
 - set ballbutton to not be interactable during enemy turn
@@ -43,13 +45,11 @@ X make stacks work on dots
 X fix 0 duration statuses when stacked
 - combat log improvements
 X improve miss text
+- every weapon
 
 // effects
 X display
-- clearing on combat
-- ooc statuses
+X clearing on combat
+X ooc statuses
 X LOGGING
 X FIX DURATION BEING DECREASED BY 2
-
-next:
-- every weapon
