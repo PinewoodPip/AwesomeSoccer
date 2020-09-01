@@ -1,3 +1,4 @@
+import React from 'react';
 import * as Utils from "./Utils.js"
 import { strings } from "./strings.js"
 import * as data from "./generalData.js"
@@ -91,19 +92,6 @@ class BallGame {
     if (this.state.streak > stats.state.bestStreaks[result])
       stats.state.bestStreaks[result] = this.state.streak;
 
-    // main.addPopup({
-    //   title: "test",
-    //   msg: "msg",
-    //   buttons: [
-    //     {text: "t",
-    //   func: main.closePopup.bind(main)},
-    //   {text: "t",
-    //   func: main.closePopup.bind(main)},
-    //   {text: "t",
-    //   func: main.closePopup.bind(main)},
-    //   ]
-    // })
-
     if (this.state.streak >= 6) {
       this.state.legs++;
       this.state.totalLegs++;
@@ -195,7 +183,14 @@ class BallManager {
       main.app.setState({ball: id})
     }
     else {
-      alert("You don't have that ball (YET)!")
+      main.addPopup({
+        title: "LOCKED!",
+        description: <div>
+          <p>You don't have that ball (YET)!</p>
+          <p>Buy lootboxes to obtain more balls!</p>
+        </div>,
+        buttons: [data.popupButtons.close]
+      })
     }
   }
 
@@ -442,7 +437,12 @@ export class TravelManager {
       artifacts: [],
       gym: {
         moves: {
-
+          penalty_kick: {
+            level: 0,
+          },
+          feign_injury: {
+            level: 0,
+          }
         },
         perks: {
           legendary_strikes: {
@@ -480,9 +480,17 @@ export class TravelManager {
     return (levelling.state.level > this.unlockLevel)
   }
 
+  test() {
+    console.log("test")
+  }
+
   buyPerk(id) {
     let perk = this.getPerk(id);
     let cost = perk.prices[perk.level];
+
+    function test() {
+      console.log("test")
+    }
 
     if (perk.level >= perk.maxLevel) {
       main.addPopup({
@@ -493,12 +501,13 @@ export class TravelManager {
         ]
       })
     }
-    if (this.state.giftcards > cost) {
+    else if (this.state.giftcards >= cost) {
       main.addPopup({
         title: perk.name,
-        description: "Are you sure you want to buy/upgrade Legendary Strikes? The gym has a strict no-refund policy.",
+        description: "Are you sure you want to buy/upgrade {0}? The gym has a strict no-refund policy.".format(perk.name),
         buttons: [
-          {text: "BUY", func: (() => {this.state.unlocks.gym.perks[id].level++; this.state.giftcards -= cost}).bind(this)}
+          {text: "BUY", func: () => {console.log("t"); this.state.unlocks.gym.perks[id].level++; this.state.giftcards -= cost}},
+          data.popupButtons.cancel,
         ]
       })
     }
@@ -513,34 +522,168 @@ export class TravelManager {
     }
   }
 
+  buyMove(id) {
+    let move = this.getMove(id);
+
+    if (move.level == move.maxLevel) {
+      main.addPopup({
+        title: "IMPOSSIBLE",
+        description: utils.format("{0} is at maximum level. Cannot upgrade further.", move.name),
+        buttons: [
+          data.popupButtons.close,
+        ]
+      })
+    }
+    else if (this.state.giftcards >= move.nextLevelCost) {
+      main.addPopup({
+        title: move.name,
+        description: "Are you sure you want to buy/upgrade {0}? The gym has a strict no-refund policy.".format(move.name),
+        buttons: [
+          {text: "BUY", func: (() => {
+            if (move.level == 0) {
+              main.addPopup({
+                title: "MOVE ACQUIRED",
+                description: utils.format("You have learnt the art of {0}! You can equip it from your wardrobe.", move.name),
+                buttons: [
+                  data.popupButtons.excitedClose,
+                ]
+              })
+            }
+            this.state.unlocks.gym.moves[id].level++;
+            this.state.giftcards -= move.nextLevelCost
+          }).bind(this)
+          }, // hope this deducts the right amount
+          data.popupButtons.cancel,
+        ]
+      })
+    }
+    else {
+      main.addPopup({
+        title: "IMPOSSIBLE",
+        description: utils.format("Not enough gym membership gift cards to buy/upgrade {0}!", move.name),
+        buttons: [
+          data.popupButtons.close,
+        ]
+      })
+    }
+  }
+
   getPerk(id) {
     var perk = _.cloneDeep(data.perks[id])
     var perkData = this.state.unlocks.gym.perks[id];
     perk.unlocked = (perkData.level > 0);
     perk.level = perkData.level;
+    perk.nextLevelCost = (perk.level < perk.maxLevel) ? perk.prices[perk.level] : null;
     return perk;
   }
 
+  getMove(id) {
+    let move = _.cloneDeep(data.moves[id])
+    let save = this.state.unlocks.gym.moves[id]
+    move.level = save.level;
+    move.unlocked = (save.level > 0)
+    move.maxLevel = move.prices.length;
+    move.nextLevelCost = (move.level < move.maxLevel) ? move.prices[move.level] : null;
+
+    return move;
+  }
+  
   getCurrent(thing) {
     switch(thing) {
       case "weapon": {
-        if (this.state.loadout.weapon != null) {
-          let info = _.cloneDeep(data.weapons[this.state.loadout.weapon])
-          return info;
-        }
-        else
-          return null;
+        let current = this.state.loadout.weapon;
+        if (current != null)
+          return this.getWeapon(current)
+        return null;
       }
+      // todo
     }
   }
+
+  getWeapon(id) {
+    let wep = _.cloneDeep(data.weapons[id])
+    wep.unlocked = this.state.unlocks.weapons.includes(id)
+
+    return wep;
+  }
+
+  getArtifact(id) {
+    let art = _.cloneDeep(data.artifacts[id])
+    art.unlocked = this.state.unlocks.artifacts.includes(id)
+
+    return art;
+  }
+
+  // // unused?
+  // getCurrent(thing) {
+  //   console.log("DEPRECATED CALL - GETCURRENT")
+  //   switch(thing) {
+  //     case "weapon": {
+  //       if (this.state.loadout.weapon != null) {
+  //         let info = _.cloneDeep(data.weapons[this.state.loadout.weapon])
+  //         return info;
+  //       }
+  //       else
+  //         return null;
+  //     }
+  //   }
+  // }
 
   equip(type, id, slot) {
     switch (type) {
       case "artifact": {
-        this.state.loadout.artifacts[slot] = id;
+        if (this.getArtifact(id).unlocked)
+         this.state.loadout.artifacts[slot] = id;
+        break;
       };
       case "weapon": {
-        this.state.loadout.weapon = id;
+        if (this.getWeapon(id).unlocked)
+          this.state.loadout.weapon = id;
+        break;
+      };
+      case "move": {
+        if (this.getMove(id).unlocked)
+          this.state.loadout.moves[slot] = id;
+        break;
+      };
+    }
+  }
+
+  unequip(type) {
+    switch(type) {
+      case "weapons": {
+        this.state.loadout.weapon = null;
+        break;
+      }
+      case "artifacts": {
+        for (let x in this.state.loadout.artifacts) {
+          this.state.loadout.artifacts[x] = null;
+          break;
+        }
+      }
+      case "moves": {
+        for (let x in this.state.loadout.moves) {
+          this.state.loadout.moves[x] = null;
+          break;
+        }
+      }
+    }
+    main.render();
+  }
+
+  unlock(type, id) {
+    switch(type) {
+      case "artifact": {
+        if (!this.state.unlocks.artifacts.includes(id)) {
+          this.state.unlocks.artifacts.push(id)
+        }
+        break;
+      };
+      case "weapon": {
+        if (!this.state.unlocks.weapons.includes(id)) {
+          this.state.unlocks.weapons.push(id)
+        }
+        break;
       };
     }
   }
@@ -613,6 +756,7 @@ export class CombatManager {
 
     for (let x in data.skills) {
       var def = data.skills[x]
+      def.id = x; // ensure we do not have misspelled ids
       var skill = new skillTypeDict[def.behaviour](def);
       this.skills[def.id] = skill;
     }
@@ -639,15 +783,17 @@ export class CombatManager {
     if (!combatManager.inCombat) {
       let player = combatManager.player;
       let heal = combatManager.OOCHealing;
+
       if (travel.hasArtifact("engraved_ring"))
         heal += combatManager.player.maxHp * 0.04;
+        
       combatManager.player.heal(heal);
 
       combatManager.player.loseWillpower(combatManager.OOCWillpowerDrain)
       combatManager.player.loseSweat(combatManager.OOC_SWEAT_DRAIN)
 
       for (let x in player.statuses) {
-        player.statuses[x].onOOCTurn();
+        player.statuses[x].onTurnOOC();
       }
 
       main.render();
@@ -714,6 +860,7 @@ export class CombatManager {
       this.isPlayerTurn = !this.isPlayerTurn;
 
       setTimeout(this.tickTurn.bind(this), this.TURN_DELAY)
+      main.render();
       // this.tickTurn();
     }
 
@@ -734,6 +881,7 @@ export class CombatManager {
     }
     else {
       console.log(utils.format("{0}'s turn has started.", entity.name))
+      console.log(entity)
       entity.onTurnStart();
     }
 
@@ -755,7 +903,14 @@ export class CombatManager {
         title: title,
         description: desc,
         buttons: [
-          {text: "ok", func: function(){levelling.gainXp(xp); this.closeCombat()}.bind(this)}
+          {text: "ok", func: function(){
+            levelling.gainXp(xp);
+            if (travel.hasArtifact("bottled_glass")) {
+              let art = travel.getArtifact("bottled_glass")
+              let status = data.statuses[art.tuning.buff]
+              this.player.applyStatus(new statusTypeDict[status.behaviour](this, this.player, status, 3, false))
+            }
+            this.closeCombat()}.bind(this)}
         ]
       })
     }
@@ -812,19 +967,115 @@ export class CombatManager {
     return dmg;
   }
 
+  sendStatusMsg(context, hit, status, fakeStatus) {
+    if (status == null)
+      status = fakeStatus;
+    
+    var msgs = (status.target.isPlayer) ? status.def.log.player : status.def.log.enemy;
+    var params = [];
+    var msg = msgs[context];
+
+    if (msg == null)
+      return;
+
+    for (let x in msg.params) {
+      console.log(msg.params)
+      switch(msg.params[x]) {
+        case "target":
+          params.push(status.target.name);
+          break;
+        case "user":
+          params.push(status.user.name);
+          break;
+        case "dmg":
+          params.push(hit.dmg);
+          break;
+        case "heal":
+          params.push(hit.heal);
+          break;
+        case "status":
+          params.push(status.def.name);
+          break;
+      }
+    }
+
+    let str = utils.format(msg.msg, ...params)
+
+    combatManager.log.push(str);
+  }
+
+  rollStatuses(hit, def) {
+    for (let x in def.statuses) {
+      let eff = def.statuses[x];
+      let empower = (eff.empowered != undefined) ? true : false
+      let possible = (empower) ? hit.empowered : (!hit.empowered) // require empowered hit for empowered effects
+      let chance = eff.chance;
+
+      // soccer moves have upgradeable status chances
+      if (def.soccerMove != null) {
+        if (def.special.bonusSuccessChancePerLevel != undefined) {
+          let save = travel.getMove(def.soccerMove)
+          chance += def.special.bonusSuccessChancePerLevel * (save.level - 1)
+        }
+      }
+
+      if (possible) {
+        if (utils.checkRoll(chance)) {
+          hit.statuses.push(eff);
+        }
+        else {
+          let fakeStatus = {
+            user: hit.user,
+            target: hit.target,
+            def: data.statuses[eff.id],
+          }
+          this.sendStatusMsg("failed", hit, fakeStatus)
+        }
+      }
+    }
+
+    return hit;
+  }
+
+  rollStatusOnlyHit(user, target, def, postProcessFunc) {
+    var hit = {
+      get rawDmg() {return utils.round(this._dmg, 1)},
+      set rawDmg(val) {
+        this._dmg = val;
+      },
+      get dmg() {return utils.round(this._dmg * this.target.dmgReduction, 1)},
+      set dmg(val) {this._dmg = val}, // legacy
+      crit: false,
+      dmgType: "default",
+      empowered: false,
+      user: user,
+      target: target,
+      skill: def,
+      outcome: "hit",
+      averageDmg: 0,
+      get heal() {return utils.round(this._heal)},
+      set heal(val) {this._heal = val},
+      statuses: [],
+    };
+    hit.rawDmg = 0;
+
+    console.log(postProcessFunc)
+    hit = (postProcessFunc != null) ? postProcessFunc(hit) : hit;
+    console.log(hit)
+    hit = this.rollStatuses(hit, def)
+
+    return hit;
+  }
+
   rollDmg(user, target, def, postProcessFunc, dmgDefParam) {
     var dmgDef = (dmgDefParam != undefined) ? dmgDefParam : def.dmg;
     var hit = {
-      get dmg() {return utils.round(this._dmg, 1)},
-      set dmg(val) {
+      get rawDmg() {return utils.round(this._dmg, 1)},
+      set rawDmg(val) {
         this._dmg = val;
       },
-      // get rawDmg() {
-      //   return utils.round(this._rawDmg, 1);
-      // },
-      // set rawDmg(val) {
-      //   this._rawDmg = val;
-      // },
+      get dmg() {return utils.round(this._dmg * this.target.dmgReduction, 1)},
+      set dmg(val) {this._dmg = val}, // legacy
       crit: false,
       dmgType: "default",
       empowered: false,
@@ -842,25 +1093,23 @@ export class CombatManager {
       hit.dmgType = dmgDef.type;
 
     // get user damage and multiply by skill's mult, and add some randomness through the skill's dmgRange attribute. 0.1 dmgRange = +-10% damage
-    hit.dmg = user.getRealStats().dmg * dmgDef.mult * utils.randomFromRangeFloat(1-dmgDef.range, 1+dmgDef.range);
+    hit.rawDmg = user.getRealStats().dmg * dmgDef.mult * utils.randomFromRangeFloat(1-dmgDef.range, 1+dmgDef.range);
 
     if (utils.checkRoll(user.critChance)) {
+      console.log("Crit!")
       hit.crit = true;
-      hit.dmg *= user.critMult;
-    }
-
-    // roll statuses
-    if (def != null) { // can only roll statuses from a skill def
-      for (let x in def.statuses) { // todo empowered versions
-        let eff = def.statuses[x];
-  
-        if (utils.checkRoll(eff.chance)) {
-          hit.statuses.push(eff);
-        }
-      }
+      hit.rawDmg *= user.critMult;
     }
 
     hit = (postProcessFunc != null) ? postProcessFunc(hit) : hit;
+
+    // roll statuses
+    if (def != null) { // can only roll statuses from a skill def
+      hit = this.rollStatuses(hit, def)
+    }
+
+    if (hit.empowered)
+      console.log("Empowered hit:")
     console.log(hit)
     return hit;
   }

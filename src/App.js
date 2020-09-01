@@ -12,9 +12,9 @@ import { BallsPanel } from "./BallsPanel.js"
 import { ProgressBar, XpBar } from "./progressBar.js"
 import { Tooltip } from "./tooltip.js"
 import { Color, BackgroundsPanel } from "./colors.js"
-import { Button, Header, PopUp, Divisor } from "./genericElements.js"
+import { Button, Header, PopUp, Divisor, ArtifactTooltip, Icon } from "./genericElements.js"
 import { PlayerPanel, EnemyPanel, CombatLog } from './combatComponents';
-import { Wardrobe } from "./wardrobe.js"
+import { Wardrobe, WeaponIcon } from "./wardrobe.js"
 import * as utils from "./utilities.js"
 import { Stat, Stats, TravelPanel, HomeButtonPanel, Gym } from "./panels.js"
 
@@ -26,34 +26,31 @@ function importAll(r) {
 
 const images = importAll(require.context('./Assets/Balls', false, /\.(gif|jpe?g|svg|png)$/));
 
-function Icon(props) {
-  var inner = <div className="icon">
-    <img src={props.img}></img>
-  </div>
-  if (props.tooltip != undefined)
-    return (
-      <Tooltip content={props.tooltip}>
-        {inner}
-      </Tooltip>
-    )
-  else {
-    return inner;
-  }
-}
-
 class Equips extends React.Component {
   render() {
     let weapon = Game.travel.getCurrent("weapon")
-    let weaponIcon = (weapon != null) ? <Icon img={weapon.icon}></Icon> : null;
+    let weaponIcon = (weapon != null) ? <WeaponIcon data={weapon} app={this.props.app} interactable={false}/> : null;
+
+    let arts = []
+    for (let x in Game.travel.state.loadout.artifacts) {
+      let id = Game.travel.state.loadout.artifacts[x]
+
+      if (id != null) {
+        let art = Game.travel.getArtifact(id)
+        arts.push(<Icon key={x} data={art} tooltip={<ArtifactTooltip data={art}/>}></Icon>)
+      }
+    }
+
     return (
       <div>
         <Header text="------------EQUIPS------------"></Header>
         <div className="icons-flexbox">
           <Icon src=""></Icon>
           {weaponIcon}
+          {arts}
         </div>
         <div style={{width: "100%"}}>
-          <ProgressBar hasXpBar={true} percentage={Game.combatManager.player.getHpPercentage()} level={Game.levelling.state.level} text={`${Game.combatManager.player.hp}/${Game.combatManager.player.maxHp} HP`}></ProgressBar>
+          <ProgressBar hasTooltip hasXpBar={true} percentage={Game.combatManager.player.getHpPercentage()} level={Game.levelling.state.level} text={`${Game.combatManager.player.hp}/${Game.combatManager.player.maxHp} HP`}></ProgressBar>
         </div>
       </div>
     )
@@ -105,7 +102,7 @@ class Result extends React.Component{
         <p>{Game.ballGame.getStreakText()}</p>
         <p className="red-text">{Game.ballGame.getLegendaryStreakText()}</p>
 
-        <div className="ball-area">
+        <div className="ball-area" disabled={!Game.combatManager.isPlayerTurn && Game.combatManager.inCombat}>
           <div style={{height: "282px"}} onClick={() => Game.ballGame.roll()}>
             <img style={{height: "282px"}} src={ballImg} className="absolute-centered"></img>
 
@@ -224,8 +221,19 @@ class App extends React.Component{
           </div>
         </div>
 
+        {/* DEBUG BUTTONS */}
         <div>
           <Button text="add lp" func={function(){Game.stats.state.legs += 99;}}></Button>
+          <Button text="add giftcards" func={function(){Game.travel.state.giftcards += 10;}}></Button>
+          <Button text="unlock arts/weps" func={function(){
+            for (let x in data.weapons) {
+              Game.travel.unlock("weapon", x)
+            }
+            for (let x in data.artifacts) {
+              Game.travel.unlock("artifact", x)
+            }
+          }}></Button>
+          <Button text="add wp" func={function(){Game.combatManager.player.willpower += 0.5}}></Button>
         </div>
       </div>
     );

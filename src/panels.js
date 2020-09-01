@@ -26,6 +26,88 @@ function GymButton(props) {
   )
 }
 
+export function PerkTooltip(props) {
+  var bottomText = []
+  let perk = props.data;
+  if (props.data.level <= 0) {
+    bottomText.push(<p key={1}>You don't have this perk (YET)!</p>)
+    if (perk.level < perk.maxLevel)
+      bottomText.push(<p key={2}>{"Unlock cost: {0} Gym Membership Giftcards".format(props.data.nextLevelCost)}</p>)
+    else
+      bottomText.push(<p key={2}>{"At maximum level. Cannot upgrade further."}</p>)
+    bottomText.push(<p key={3}>{"Upgrade level: {0}/{1}".format(perk.level, perk.maxLevel)}</p>)
+  }
+  else {
+    bottomText.push(<p key={1}>{"Upgrade cost: {0} Gym Membership Giftcards".format(props.data.nextLevelCost)}</p>)
+    bottomText.push(<p key={2}>{"Upgrade level: {0}/{1}".format(perk.level, perk.maxLevel)}</p>)
+  }
+  return (
+    <div className="generic-tooltip">
+      <p>{perk.name}</p>
+      <p>{perk.description}</p>
+      <p></p>
+      {bottomText}
+    </div>
+  )
+}
+
+export function SoccerMoveButton(props) {
+
+  let scalingDescription = [];
+  for (let x in props.data.scalingDescription) {
+    scalingDescription.push(<p key={x}>{props.data.scalingDescription[x]}</p>)
+  }
+
+  let bottomText = [];
+  if (props.forSale) {
+    if (props.data.level > 0) {
+      bottomText.push(<p key={0}>{"Upgrade cost: {0} Gym Membership Giftcards".format(props.data.nextLevelCost)}</p>)
+    }
+    else {
+      bottomText.push(<p key={1}>{"You don't have this move (YET)!"}</p>)
+      bottomText.push(<p key={2}>{"Unlock cost: {0} Gym Membership Giftcards".format(props.data.nextLevelCost)}</p>)
+    }
+  }
+
+  let func; // different onClick based on where it's used (gym/wardrobe)
+  if (props.forSale)
+    func = () => {Game.travel.buyMove(props.data.id)}
+  else
+    func = () => {
+      Game.main.addPopup({
+        title: props.data.name,
+        description: "Equip {0}?".format(props.data.name),
+        buttons: [
+          {text: "EQUIP IN SLOT 1", func: (() => {Game.travel.equip("move", props.data.id, 0)}).bind(this)},
+          {text: "EQUIP IN SLOT 2", func: (() => {Game.travel.equip("move", props.data.id, 1)}).bind(this)},
+          data.popupButtons.cancel,
+        ]
+      })
+    }
+  
+  bottomText.push(<p key={3}>{"Upgrade level: {0}/{1}".format(props.data.level, props.data.maxLevel)}</p>)
+
+  let tooltip = <div className="generic-tooltip">
+    <p>{props.data.name}</p>
+    <p>{props.data.description}</p>
+    <p></p>
+    {scalingDescription}
+    <p></p>
+    {bottomText}
+  </div>
+
+  let button = <Button
+    text={props.data.name.toUpperCase()}
+    func={func}
+  ></Button>
+
+  return (
+    <Tooltip content={tooltip}>
+      {button}
+    </Tooltip>
+  )
+}
+
 export class Gym extends React.Component {
   pages = [
     "moves",
@@ -52,15 +134,25 @@ export class Gym extends React.Component {
     var panelIndex = this.pages.indexOf(panel)
 
     var items = [];
+    
     if (panel == "perks") {
       for (let x in data.perks) {
         let perk = data.perks[x]
-        let element = <Button
-          text={perk.name}
-          func={() => {Game.travel.buyPerk(x)}}
-          key={x}
-        />
+        let save = Game.travel.getPerk(x)
+        let element = <Tooltip content={<PerkTooltip data={save}/>} key={x}>
+          <Button
+            text={perk.name.toUpperCase()}
+            func={() => {Game.travel.buyPerk(x)}}
+          />
+        </Tooltip>
         items.push(element);
+      }
+    }
+    else if (panel == "moves") {
+      for (let x in data.moves) {
+        let move = Game.travel.getMove(x);
+        let element = <SoccerMoveButton data={move} key={x} forSale={true}/>
+        items.push(element)
       }
     }
     else {

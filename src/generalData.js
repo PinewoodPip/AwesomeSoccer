@@ -6,6 +6,8 @@ export const images = {
     balls: utils.importAll(require.context("./Assets/Balls", false, /\.(gif|jpe?g|svg|png)$/)),
     ui: utils.importAll(require.context("./Assets/UI", false, /\.(gif|jpe?g|svg|png)$/)),
     icons: utils.importAll(require.context("./Assets/Icons", false, /\.(gif|jpe?g|svg|png)$/)),
+    artifacts: utils.importAll(require.context("./Assets/Icons/Artifacts", false, /\.(gif|jpe?g|svg|png)$/)),
+    weapons: utils.importAll(require.context("./Assets/Icons/Weapons", false, /\.(gif|jpe?g|svg|png)$/)),
 }
 
 export const colors = {
@@ -152,11 +154,36 @@ export const travelAreas = {
     },
 }
 
+export const moves = {
+    penalty_kick: {
+        name: "Penalty Kick",
+        id: "penalty_kick",
+        description: "A strike which pierces enemy defenses and heavily reduces them for multiple turns.<br>Defense reduction is increased if empowered with Willpower.",
+        scalingDescription: [
+            "+10% damage per level.",
+            "+10% defense deduction per level.",
+            "At level 3: +1 turn duration.",
+        ],
+        prices: [1, 1, 1]
+    },
+    feign_injury: {
+        name: "Feign Injury",
+        id: "feign_injury",
+        description: "Feign an injury to get the attention of a judge, who may give your enemy a red card, stopping them from playing for a while.<br>Duration of effect is increased if empowered with Willpower.",
+        scalingDescription: [
+            "+10% success chance per level.",
+            "-10% sweat gained per level on use.",
+            "At level 3: 35% chance of +1 turn duration.",
+        ],
+        prices: [1, 1, 1]
+    },
+}
+
 export const weapons = {
     breakdawner: {
         name: "The Breakdawner",
         id: "breakdawner",
-        icon: weaponIcons["breakdawner.png"],
+        icon: images.weapons["breakdawner.png"],
         description: "Strikes from The Breakdawner fill you with determination, restoring health based on damage done, along with smiting undead foes harder.<br>Its lifesteal increases with Willpower, but does not consume it.",
         lore: "",
         skillName: "Breakdawner", // shown in combat button (?)
@@ -164,7 +191,7 @@ export const weapons = {
     tinderbow: {
         name: "Tinderbow & Matchsticks",
         id: "tinderbow",
-        icon: weaponIcons["placeholder.png"],
+        icon: images.weapons["placeholder.png"],
         description: "The Tinderbow shoots lit matchsticks which ignite your enemy, dealing damage every turn.<br>The burning effect stacks up to 5 times, and all stacks are removed when the effect ends.<br>Deals less damage than your average weapon.",
         lore: "",
         skillName: "Tinderbow",
@@ -179,7 +206,7 @@ export const weapons = {
     nerfing_gun: {
         name: "Nerfing Gun",
         id: "nerfing_gun",
-        icon: weaponIcons["placeholder.png"],
+        icon: images.weapons["placeholder.png"],
         description: "The Nerfing Gun fires nerfing bolts which weaken targets. The debuff is stackable, but stacks expire after X turns.",
         lore: "",
         skillName: "Nerfing Gun",
@@ -187,7 +214,7 @@ export const weapons = {
     sniper_rifle: {
         name: "Sniper Rifle",
         id: "sniper_rifle",
-        icon: weaponIcons["placeholder.png"],
+        icon: images.weapons["placeholder.png"],
         description: "The Sniper Rifle is exceptionally accurate and passively increases your accuracy. However, it's considerably weaker than other weapons.<i>Turns out it's hard to miss when you don't have ammo and opt to bash your enemy with the firearm itself.</i>",
         lore: "<i>Turns out it's hard to miss when you don't have ammo and opt to bash your enemy with the firearm itself.</i>",
         skillName: "Sniper Rifle",
@@ -195,7 +222,7 @@ export const weapons = {
     shield: {
         name: "Shield of Resistance",
         id: "shield",
-        icon: weaponIcons["placeholder.png"],
+        icon: images.weapons["placeholder.png"],
         description: "The Shield of Resistance does not deal damage, but instead increases your defense during the next enemy turn by 45%, or 75% if empowered.<br>Additionally, it confers a passive 10% chance to block any attack.",
         lore: "<i>todooo</i>",
         skillName: "Shield of Resistance",
@@ -206,12 +233,65 @@ export const artifacts = {
     engraved_ring: {
         name: "Engraved Ring of Healing", // Fargoth? more like Faggot LOL
         id: "engraved_ring",
-        desc: "Heals you when you spend Willpower or win a fight.<br>Increases healing when out of combat by +4% of your maximum HP per second.",
-        icon: "temp_ring.png",
+        description: "Heals you when you spend Willpower or win a fight.<br>Increases healing when out of combat by +4% of your maximum HP per second.",
+        icon: images.artifacts["temp_ring.png"],
         tuning: {
             victoryHealing: 0.2,
             OOCHealing: 4,
             healingPerWillpower: 0.8, // restore 80% health if you use 100% willpower at once. OP?
+        },
+    },
+    monocles_of_duality: {
+        name: "Monocles of Duality",
+        id: "monocles_of_duality",
+        description: "Increases your chance to deal a critical hit by 10%.<br>Decreases your accuracy by 15% (bad prescription), but your precision is increased by 10% per hit, helping you get more consistent outcomes.",
+        icon: images.artifacts["placeholder.png"],
+        tuning: {
+            positiveStatus: "monocles_of_duality_status_positive",
+            negativeStatus: "monocles_of_duality_status_negative",
+            bonusAccuracy: -0.15,
+            bonusCritChance: 0.1, // "només 0.1 ???"
+            bonusPrecision: 0.1,
+        },
+    },
+    bottled_glass: {
+        name: "Bottled Glass",
+        id: "bottled_glass",
+        description: "Your damage increases by X% for each fight completed, but your maximum health decreases by X% of your normal maximum health each turn. Both effects decay outside of combat.",
+        icon: images.artifacts["placeholder.png"],
+        tuning: {
+            buff: "bottled_glass_status_positive",
+            debuff: "bottled_glass_status_negative"
+        },
+    },
+    cleansing_talisman: {
+        name: "Cleansing Talisman",
+        id: "cleansing_talisman",
+        description: "When you attack with your weapon, the Cleansing Talisman removes one negative effect from your target to grant you 20% willpower.",
+        icon: images.artifacts["placeholder.png"],
+        tuning: {
+            willpowerGain: 0.2,
+        },
+    },
+    travelling_mug: {
+        name: "Travelling Mug",
+        id: "travelling_mug",
+        description: "Your Willpower capacity is increased to 200%, but your Sweat increases at the start of your turns if your Willpower is below 100%.",
+        icon: images.artifacts["placeholder.png"],
+        tuning: {
+            maxWillpowerIncrease: 1,
+            threshold: 1,
+            sweatInflicted: 0.2,
+        },
+    },
+    zeal: {
+        name: "Zeal",
+        id: "zeal",
+        description: "If you're at maximum willpower, your next weapon strike is performed twice in that turn and expends 50% of your maximum willpower.",
+        icon: images.artifacts["placeholder.png"],
+        tuning: {
+            willpowerLoss: 0.5,
+            threshold: 1,
         },
     },
 }
@@ -219,6 +299,10 @@ export const artifacts = {
 export const popupButtons = {
     close: {
         text: "CLOSE",
+        func: () => {},
+    },
+    cancel: {
+        text: "CANCEL",
         func: () => {},
     },
     excitedClose: {
@@ -243,7 +327,7 @@ export const perks =  {
         id: "flow",
         description: "Gain more Willpower during streaks.<br>+10% Willpower generation per win/loss in streaks of 2+ wins/losses, +5% per level.",
         maxLevel: 3,
-        prices: [1, 1, 1, 1],
+        prices: [1, 1, 1],
         tuning: { // additive
             baseBoost: 0.1,
             levelBoost: 0.05,
@@ -254,7 +338,7 @@ export const perks =  {
         id: "art_of_the_steal",
         description: "Increases your chance to find consumable items after winning a fight by 4% per level.",
         maxLevel: 2,
-        prices: [1, 1, 1],
+        prices: [1, 1],
         tuning: {
             boost: 0.04,
         }
@@ -303,6 +387,7 @@ export const skills = {
         id: "base_attack",
         description: "Description",
         behaviour: "attack",
+        isWeaponSkill: false,
         target: "enemy",
         dmg: {
             mult: 1,
@@ -317,6 +402,9 @@ export const skills = {
             use: {msg: "{0} uses {1}!", params: ["user", "skill"]}
         },
         willpower: {
+            empowerable: false,
+            threshold: 0,
+            drain: 0,
             gain: 0,
             dmgBonus: 0,
         }
@@ -339,6 +427,9 @@ export const skills = {
         willpower: {
             gain: 0.2,
             dmgBonus: 0.3
+        },
+        special: {
+            sweatGain: 0,
         }
     },
     breakdawner: {
@@ -346,6 +437,7 @@ export const skills = {
         name: "Breakdawner",
         id: "breakdawner",
         behaviour: "player_breakdawner",
+        isWeaponSkill: true,
         log: {
             autoLogDmg: false,
             use: {msg: "You slash {0} with The Breakdawner, dealing {1} damage and restoring {2} health!", params: ["target", "dmg", "heal"]}
@@ -367,6 +459,7 @@ export const skills = {
         name: "Tinderbow & Matchsticks",
         id: "tinderbow",
         behaviour: "player_tinderbow",
+        isWeaponSkill: true,
         log: {
             autoLogDmg: false,
             use: {msg: "You fire a burning matchstick at {0}, dealing {1} damage!", params: ["target", "dmg"]}
@@ -385,6 +478,129 @@ export const skills = {
             dmgBonus: 0.4
         }
     },
+    nerfing_gun: {
+        base: "base_attack",
+        name: "Nerfing Gun",
+        id: "nerfing_gun",
+        behaviour: "attack",
+        isWeaponSkill: true,
+        log: {
+            autoLogDmg: false,
+            use: {msg: "You fire a nerfing projectile at {0}, dealing {1} damage!", params: ["target", "dmg"]}
+        },
+        statuses: [
+            {id: "nerfed", chance: 1, duration: 3}
+        ],
+        dmg: {
+            mult: 0.8,
+            range: 0.1,
+            acc: 0.9,
+            dodgeable: true,
+            type: "default",
+        },
+        willpower: {
+            dmgBonus: 0.4
+        }
+    },
+    sniper_rifle: {
+        base: "base_attack",
+        name: "Sniper Rifle",
+        id: "sniper_rifle",
+        behaviour: "attack",
+        isWeaponSkill: true,
+        log: {
+            autoLogDmg: false,
+            use: {msg: "You bash {0} with your rifle, dealing {1} damage!", params: ["target", "dmg"]}
+        },
+        dmg: {
+            mult: 0.6,
+            range: 0.1,
+            acc: 1.5,
+            dodgeable: true,
+            type: "default",
+        },
+        willpower: {
+            dmgBonus: 0.4
+        }
+    },
+    shield: {
+        base: "base_attack",
+        name: "Shield of Resistance",
+        id: "shield",
+        behaviour: "self_buff_player",
+        isWeaponSkill: true,
+        target: "self",
+        log: {
+            autoLogDmg: false,
+            use: {msg: "You prepare your shield!", params: []}
+        },
+        statuses: [
+            {id: "player_shield", chance: 1, duration: 2},
+            {id: "player_shield_empowered", chance: 1, duration: 2, empowered: true}
+        ],
+        willpower: {
+            empowerable: true,
+            threshold: 0.4,
+            drain: 0.3,
+        }
+    },
+    penalty_kick: {
+        base: "base_attack",
+        name: "Penalty Kick",
+        id: "penalty_kick",
+        behaviour: "soccerAttack",
+        log: {
+            autoLogDmg: false,
+            use: {msg: "You make a penalty kick at {0}, piercing their defenses and dealing {1} damage!", params: ["target", "dmg"]}
+        },
+        statuses: [
+            {id: "penalty_kick_status", chance: 0.7, duration: 3},
+            {id: "penalty_kick_status_empowered", chance: 0.9, duration: 3, empowered: true},
+        ],
+        dmg: {
+            mult: 0.9,
+            range: 0.1,
+            acc: 0.9,
+            dodgeable: true,
+            type: "default",
+        },
+        willpower: {
+            empowerable: true,
+            threshold: 0.4,
+            drain: 0.2,
+            dmgBonus: 0.3,
+        },
+        special: {
+            sweatGain: 0.2,
+            bonusDmgPerUpgradeLevel: 0.1, // +10% per level
+        }
+    },
+    feign_injury: {
+        base: "base_attack",
+        name: "Feign Injury",
+        id: "feign_injury",
+        behaviour: "feign_injury",
+        log: {
+            autoLogDmg: false,
+            use: {msg: "You feign an injury!", params: []}
+        },
+        statuses: [
+            {id: "feign_injury_status", chance: 0.4, duration: 2},
+            {id: "feign_injury_status_empowered", chance: 0.7, duration: 2, empowered: true},
+        ],
+        willpower: {
+            empowerable: true,
+            threshold: 0.5,
+            drain: 0.3,
+            dmgBonus: 1,
+        },
+        special: {
+            sweatGain: 0.7,
+            bonusSuccessChancePerLevel: 0.1, // +10% success chance per upgrade level
+            bonusSweatReductionPerLevel: 0.1,
+            bonusExtraDurationTreshold: 3, // +turn duration at level 3
+        }
+    },
 }
 
 export const statuses = {
@@ -395,6 +611,7 @@ export const statuses = {
         behaviour: "genericStatus",
         positive: false,
         isStun: false,
+        soccerMove: null,
         log: {
             enemy: {
                 apply: {msg: "{0} is {1}!", params: ["target", "status"]},
@@ -421,12 +638,17 @@ export const statuses = {
             baseDodge: 0,
             baseBlock: 0,
             xpReward: 0,
+            defense: 0,
+            critChance: 0,
+            critMult: 0,
         },
         ooc: false,
+        freezeOOC: false,
         dot: null,
         stacking: {
             maxStacks: 1,
             refreshDurationOnStackLoss: false,
+            refreshDurationOnStackGain: false,
             multiInstance: false,
         }
     },
@@ -453,6 +675,214 @@ export const statuses = {
             type: "default",
         }
     },
+    nerfed: {
+        name: "Nerfed",
+        id: "nerfed",
+        base: "base",
+        behaviour: "genericStatus",
+        log: {
+            enemy: {
+                apply: {msg: "{0} is nerfed!", params: ["target"]},
+            }
+        },
+        statMods: {
+            hpMult: -0.05,
+            dmgMult: -0.1,
+            baseAcc: -0.1,
+            defense: -0.1,
+        },
+        stacking: {
+            maxStacks: 9999,
+            refreshDurationOnStackLoss: true,
+        },
+    },
+    player_shield: {
+        name: "Shielding",
+        id: "player_shield",
+        base: "base",
+        behaviour: "genericStatus",
+        positive: true,
+        log: {
+            player: {
+                expired: {msg: "You're no longer shielding.", params: []},
+            }
+        },
+        statMods: {
+            defense: 0.45,
+        },
+        stacking: {
+            maxStacks: 1,
+        },
+    },
+    player_shield_empowered: {
+        name: "Shielding (Empowered)",
+        id: "player_shield_empowered",
+        base: "base",
+        behaviour: "genericStatus",
+        positive: true,
+        log: {
+            player: {
+                expired: {msg: "You're no longer shielding.", params: []},
+            }
+        },
+        statMods: {
+            defense: 0.75,
+        },
+        stacking: {
+            maxStacks: 1,
+        },
+    },
+    penalty_kick_status: {
+        name: "Shattered Defenses",
+        id: "penalty_kick_status",
+        base: "base",
+        behaviour: "penaltyKickStatus",
+        soccerMove: "penalty_kick",
+        log: {
+            enemy: {
+                apply: {msg: "{0}'s defenses are shattered!", params: ["target"]},
+            }
+        },
+        statMods: {
+            defense: -0.5,
+        },
+        special: {
+            bonusDefenseReductionPerLevel: -0.1,
+            durationBonusAtLevel3: 1,
+        }
+    },
+    penalty_kick_status_empowered: {
+        name: "Empowered Shattered Defenses",
+        id: "penalty_kick_status_empowered",
+        base: "base",
+        behaviour: "penaltyKickStatus",
+        soccerMove: "penalty_kick",
+        log: {
+            enemy: {
+                apply: {msg: "{0}'s defenses are shattered!", params: ["target"]},
+            }
+        },
+        statMods: {
+            defense: -0.6,
+        },
+        special: {
+            bonusDefenseReductionPerLevel: -0.1,
+            durationBonusAtLevel3: 1,
+        }
+    },
+    feign_injury_status: {
+        name: "Red Card",
+        id: "feign_injury_status",
+        base: "base",
+        behaviour: "feignInjuryStatus",
+        soccerMove: "feign_injury",
+        isStun: true,
+        log: {
+            enemy: {
+                apply: {msg: "A judge appears and gives {0} as red card!", params: ["target"]},
+                failed: {msg: "But nobody came.", params: []},
+            }
+        },
+        special: {
+            bonusSuccessChancePerLevel: 0.1, // +10% success chance per upgrade level
+            bonusExtraDurationTreshold: 3, // +turn duration at level 3
+        }
+    },
+    feign_injury_status_empowered: {
+        name: "Redder Card",
+        id: "feign_injury_status_empowered",
+        base: "base",
+        behaviour: "feignInjuryStatus",
+        soccerMove: "feign_injury",
+        isStun: true,
+        log: {
+            enemy: {
+                apply: {msg: "A judge appears and gives {0} as redder card!", params: ["target"]},
+                failed: {msg: "But nobody came.", params: []},
+            }
+        },
+        special: {
+            bonusSuccessChancePerLevel: 0.1, // +10% success chance per upgrade level
+            bonusExtraDurationTreshold: 3, // +turn duration at level 3
+        }
+    },
+    monocles_of_duality_status_positive: {
+        name: "Positively Precise",
+        id: "monocles_of_duality_status_positive",
+        base: "base",
+        behaviour: "genericStatus",
+        positive: true,
+        log: {
+            player: {
+                apply: {msg: "You're positively precise!", params: []},
+            }
+        },
+        statMods: {
+            baseAcc: 0.1,
+        },
+        stacking: {
+            maxStacks: 5,
+            refreshDurationOnStackGain: true,
+        }
+    },
+    monocles_of_duality_status_negative: {
+        name: "Negatively Precise",
+        id: "monocles_of_duality_status_negative",
+        base: "base",
+        behaviour: "genericStatus",
+        log: {
+            player: {
+                apply: {msg: "You're negatively precise!", params: []},
+            }
+        },
+        statMods: {
+            baseAcc: -0.1,
+        },
+        stacking: {
+            maxStacks: 5,
+            refreshDurationOnStackGain: true,
+        }
+    },
+    bottled_glass_status_positive: {
+        name: "Bottled Glass Boost",
+        id: "bottled_glass_status_positive",
+        base: "base",
+        behaviour: "bottled_glass_status",
+        positive: true, // should this not count as positive? so it cannot be consumed
+        log: {
+            player: {
+                apply: {msg: "You're feeling BERSERK-EY!", params: []},
+            }
+        },
+        statMods: {
+            dmgMult: +0.3,
+        },
+        stacking: {
+            maxStacks: 9999,
+            refreshDurationOnStackGain: true,
+        },
+        ooc: true,
+    },
+    bottled_glass_status_negative: {
+        name: "Bottled Glass Penalty",
+        id: "bottled_glass_status_negative",
+        base: "base",
+        behaviour: "genericStatus",
+        log: {
+            player: {
+                apply: {msg: "Your health deteriorates...", params: []},
+            }
+        },
+        statMods: {
+            hpMult: -0.05,
+        },
+        stacking: {
+            maxStacks: 9999,
+            refreshDurationOnStackGain: true,
+            refreshDurationOnStackLoss: true,
+        },
+        ooc: true,
+    },
 }
 
 export const entityBases = {
@@ -467,6 +897,9 @@ export const entityBases = {
             baseDodge: 0,
             baseBlock: 0,
             xpReward: 5,
+            defense: 0,
+            critChance: 0,
+            critMult: 2,
         },
         player: { // used by player
             definitionLevel: 1,
@@ -478,6 +911,9 @@ export const entityBases = {
             baseDodge: 0,
             baseBlock: 0,
             xpReward: 0,
+            defense: 0,
+            critChance: 0,
+            critMult: 2,
         },
     },
     growth: {
@@ -492,6 +928,8 @@ export const entityBases = {
             baseDodge: 0,
             baseBlock: 0,
             xpReward: 2,
+            critChance: 0,
+            critMult: 0,
         },
         player: {
             definitionLevel: 0,
@@ -504,6 +942,8 @@ export const entityBases = {
             baseDodge: 0,
             baseBlock: 0,
             xpReward: 0,
+            critChance: 0,
+            critMult: 0,
         },
     }
 }

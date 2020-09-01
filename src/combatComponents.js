@@ -3,31 +3,45 @@ import * as Game from "./BallGame.js"
 import { Button, Divisor, Header } from "./genericElements.js"
 import * as data from "./generalData.js"
 import 'tippy.js/dist/tippy.css';
+import "animate.css"
 import { Tooltip } from "./tooltip.js"
 import { ProgressBar } from './progressBar.js';
 import * as utils from "./utilities.js"
+
+// render statuses tooltip
+export function renderStatuses(entity) {
+    let statuses = []
+    for (let x in entity.statuses) {
+        let status = entity.statuses[x];
+
+        statuses.push(<p>{utils.format("{0} {1}({2} turns)", status.def.name, ((status.stacks > 1) ? "x" + status.stacks + " " : ""), status.duration)}</p>)
+    }
+    return statuses;
+}
 
 export class EnemyPanel extends React.Component {
     render() {
         var enemy = Game.combatManager.enemy;
         var hp = `${enemy.hp}/${enemy.maxHp} HP`;
 
-        var statuses = [];
-        for (let x in enemy.statuses) {
-            let status = enemy.statuses[x];
+        
+        var statuses = renderStatuses(enemy)
 
-            statuses.push(<p>{utils.format("{0} {1}({2} turns)", status.def.name, ((status.stacks > 1) ? "x" + status.stacks + " " : ""), status.duration)}</p>)
-        }
-        var tooltip = <div>{statuses}</div>
-
+        var header;
         var name = (enemy.statuses.length != 0) ? enemy.name + "*" : enemy.name;
+        if (statuses.length == 0) {
+            header = <p>{name}</p>
+        }
+        else {
+            header = <Tooltip content={<div>{statuses}</div>}>
+                <p>{name}</p>
+            </Tooltip>
+        }
 
         return (
             <div>
                 <Header text="------------ENEMIES------------"></Header>
-                <Tooltip content={tooltip}>
-                    <p>{name}</p>
-                </Tooltip>
+                {header}
                 <ProgressBar percentage={enemy.getHpPercentage()} text={hp} level={enemy.level}></ProgressBar>
                 <CombatLog></CombatLog>
             </div>
@@ -63,33 +77,53 @@ export class CombatLog extends React.Component {
 
 export class PlayerPanel extends React.Component {
     render() {
-        var turnText = (Game.combatManager.isPlayerTurn) ? "Your turn!" : ""
+        let turnText = (Game.combatManager.isPlayerTurn) ? <p className="your-turn animate__animated animate__bounce">{"Your turn!"}</p> : <p className="your-turn"></p>
         var player = Game.combatManager.player;
 
         let weapon = Game.travel.getCurrent("weapon")
-        var weaponButton = (weapon != null) ? <Button text={weapon.name} func={() => player.useWeapon()}></Button> : <Button text="NO WEAPON EQUIPPED" disabled={true}></Button>
+        var weaponButton = (weapon != null) ? <Button text={weapon.name.toUpperCase()} func={() => player.useWeapon()}></Button> : <Button text="NO WEAPON EQUIPPED" disabled={true}></Button>
 
-        var statuses = [];
-        for (let x in player.statuses) {
-            let status = player.statuses[x];
+        // render statuses tooltip
+        var statuses = renderStatuses(player)
 
-            statuses.push(<p>{utils.format("{0} ({1} turns)", status.def.name, status.duration)}</p>)
+        // player header
+        var header;
+        var name = (player.statuses.length != 0) ? "------------YOU*------------" : "------------YOU------------";
+        if (statuses.length == 0) {
+            header = <Header text={name}></Header>
         }
-        var tooltip = <div>{statuses}</div>
+        else {
+            header = <Tooltip content={<div>{statuses}</div>}>
+                <Header text={name}/>
+            </Tooltip>
+        }
 
-        var header = (player.statuses.length != 0) ? "------------YOU*------------" : "------------YOU------------";
+        // soccer move buttons
+        let moveButtons = [];
+        for (let x in Game.travel.state.loadout.moves) {
+            let id = Game.travel.state.loadout.moves[x]
+            if (id != null) {
+                let move = Game.travel.getMove(id);
+                let glowing = Game.combatManager.player.willpower >= Game.combatManager.skills[move.id].def.willpower.threshold
+                moveButtons.push(
+                    <Button text={move.name.toUpperCase()} func={() => Game.combatManager.player.useMove(x)} disabled={!Game.combatManager.isPlayerTurn} glowing={glowing} key={x}/>
+                )
+            }
+            else {
+                moveButtons.push(
+                    <Button text={"NO MOVE EQUIPPED"} disabled key={x}/>
+                )
+            }
+        }
 
         return (
             <div>
-                <Tooltip content={tooltip}>
-                    <Header text={header}></Header>
-                </Tooltip>
-                <p className="your-turn">{turnText}</p>
+                {header}
+                {turnText}
                 <ProgressBar hasXpBar={false} percentage={Game.combatManager.player.getHpPercentage()} level={Game.levelling.state.level} text={`${Game.combatManager.player.hp}/${Game.combatManager.player.maxHp} HP`}></ProgressBar>
                 <div>
                     {weaponButton}
-                    <Button text={"temp"} func={() => Game.combatManager.player.useMove(0)}></Button>
-                    <Button text={"temp"} func={() => Game.combatManager.player.useMove(1)}></Button>
+                    {moveButtons}
                     <Button text={"temp"} func={() => this.props.app.openPanel("items", "right")}></Button>
                 </div>
             </div>

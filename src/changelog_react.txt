@@ -10,23 +10,36 @@ nerfed intderbow dot?
 combat log now has a scrollbar
 gym is now accessed from the "shop"
 minor changes to some text
+- artifacts have more feedback
+cleansing talisman reworked: When you attack with your weapon, the Cleansing Talisman removes one negative effect from your target to grant you 20% willpower.
+empowered feign injury now has a base 80% success chance
+removed needing to buy a perk/move before upgrading it. that is, once you buy something, the game displays it at 1/3 upgrade level. (does this affect the perks?)
 upon ending battle, the popup takes place within the battle
+damage reduction form defense is now capped at 0.1x
+empowered penalty kick now deals 30% more dmg
+penalty kick initial hit now ignores all defense
+monocles of duality statuses no longer cancel each other out
 //changed badge tiers: the initial circle badge now is used longer
 
 
+///
+ADD EMPOWERED CHECK TO ROLLDMG
+///
+
 --- todo
-- perk shop
+- move strings to strings.js
+- nerfed should require more effort to upkeep
+- change wp bonus on weps to require an artifact
+- look into queued popups not working - this is once again caused by setstate being async
+- perk shop - do they all work?
 - special ball powers
 - randomized strings for some popups, like unable to buy perks
 - support jsx for popup msg
 - LEG BREAKS!!!
-- convert artifact and weapon data to use new images system
 X fix ball button img and trophy
 X organize the way we import images
-- soccer moves
 - make ball not move when its clicked first time
 X the flow
-- willpower
 X levelup milestones
 - lock travel until lvl req
 - perk/artifact that reimplements wp extra damage
@@ -34,18 +47,73 @@ X wp gain mult stat
 - getAverageDmg should maybe consider armor
 - unequip button
 - set ballbutton to not be interactable during enemy turn
-- add unlock checks to the icon buttons, and grey them out if not unlocked
 X round wp and sweat
 X make enemies pick skills
-- add animation to your turn text
-- dont show tooltip for statuses when there are none
 - saving
 - cheat buttons
 X make stacks work on dots
 X fix 0 duration statuses when stacked
 - combat log improvements
+- implement nested bases
 X improve miss text
-- every weapon
+- config menu
+- cleanup weapon tooltips
+- use the right skillnames for weapons
+- what was dmgbonusflat?
+- prevent negative defense?
+- "equip?" prompt on purchase
+- fix maxhp changes not bounding hp
+- consumables
+
+-- 1/09/20
+X add zeal artifact
+- move some things to separate files
+X fix flexbox for soccer moves in wardrobe
+- glowing soccer move button if empowerable
+- fix xp bar sorting
+X unequip button
+X autogenerate ids for moves
+
+-- 31/08/20
+X add most artifacts
+X sweat for soccer moves
+X fix spammable combat buttons
+X grey out ball button out of turn
+
+// gotta make the bottled glass penalty tick down ooc
+
+-- 30/08/20
+X soccer moves
+X soccer move shop/gym
+X fix buy buttons in gym
+X see if stuns work
+X fix empowering not working
+X fix randomized wp gain not working
+X add failed to apply status text functionality
+X finish getTarget()
+X allow reapplying statuses
+X cancel equip wep
+
+-- 29/08/20
+X implement rest of the weapons
+X fix weapon display in equips
+X fix willpower // HOLY FUCK YEAH!!!!!
+X add animation to your turn text
+
+-- 24/08/20
+X tooltips for perks
+X dont show tooltip for statuses if you have none
+X add unlock checks to the icon buttons, and grey them out if not unlocked
+X replace ball locked alert with popup
+X convert artifact and weapon data to use new images system
+X make artifact icons work like the wep ones
+X show equipped artifacts in Equips panel
+X weapon tooltips
+X capitalize combat buttons
+X prevent locked weapons from being equipped
+X debug unlock all art/wep buttons
+X fixed statmods not working
+X added def into receiveHit
 
 // effects
 X display

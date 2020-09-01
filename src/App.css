@@ -2,39 +2,18 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.locked {
+  filter: brightness(0%);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* TOOLTIPS */
+.generic-tooltip {
+  text-align: center;
+  line-height: 17px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.generic-tooltip p {
+  text-align: center;
 }
 
 /* WARDROBE */
@@ -49,6 +28,12 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+}
+
+.wardrobe-moves {
+  /* width: 80%; */
+  /* width: 200px; */
+  flex-direction: column;
 }
 
 .wardrobe-item {
@@ -299,6 +284,26 @@
   transition-property: transform;
 }
 
+.ball-area[disabled] {
+  filter: brightness(50%);
+}
+
+.ball-area:hover:not([disabled]), .hvr-grow:focus {
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05) perspective(1px);
+
+  background-image: url("/UI/frame_blue.png");
+  background-size: 282px 282px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  z-index: 10;
+}
+
+.ball-area:active:not([disabled]) {
+  -webkit-transform: scale(0.95);
+  transform: scale(0.95) perspective(1px); 
+}
+
 .trophy-win {
   width: 64px;
   height: 64px;
@@ -315,22 +320,6 @@
   image-rendering: pixelated;
   z-index: -1;
   transition: 0.1s;
-}
-
-.ball-area:hover, .hvr-grow:focus {
-  -webkit-transform: scale(1.05);
-  transform: scale(1.05) perspective(1px);
-
-  background-image: url("/UI/frame_blue.png");
-  background-size: 282px 282px;
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
-  z-index: 10;
-}
-
-.ball-area:active {
-  -webkit-transform: scale(0.95);
-  transform: scale(0.95) perspective(1px); 
 }
 
 .ball-text {
@@ -382,11 +371,17 @@ Button {
   height: 39px;
 }
 
+Button[glowing] {
+  /* background-image: url("Assets/UI/button_glowing.gif"); */
+  box-shadow: blueviolet 0px 0px 15px 10px;
+}
+
 Button[disabled] {
   background-image: url("Assets/UI/button_disabled.gif");
   color: aliceblue;
 }
 
+/* where is this used? */
 .button-icon {
   position: absolute;
   height: 35px;
@@ -395,6 +390,10 @@ Button[disabled] {
 
 Button:hover {
   background-image: url("Assets/UI/button_selected.gif");
+}
+
+Button:hover[glowing] {
+  filter: brightness(150%);
 }
 
 Button:hover[disabled="true"] { /* fix this*/
@@ -416,6 +415,21 @@ Button:active {
 
 .arrow-button:active {
   filter: brightness(80%);
+}
+
+.checkbox {
+  border: 1px #4b4b4b solid;
+  width: 25px;
+  height: 25px;
+  margin: 5px;
+  border-radius: 3px;
+}
+
+.checkbox p {
+  line-height: 25px;
+  margin: 0;
+  text-align: center;
+  font-size: 120%;
 }
 
 /* --------------- POP-UPS --------------- */
@@ -508,10 +522,6 @@ Button:active {
   height: 18px;
 }
 
-.generic-tooltip {
-  text-align: center;
-  line-height: 8px;
-}
 .margin-bottom {
   margin-bottom: 20px;
 }

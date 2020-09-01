@@ -1,15 +1,36 @@
 import React from 'react';
 import * as Game from "./BallGame.js"
-import { Button, Divisor, Header } from "./genericElements.js"
+import { Button, Divisor, Header, Icon, ArtifactTooltip } from "./genericElements.js"
 import * as data from "./generalData.js"
 import 'tippy.js/dist/tippy.css';
 import { Tooltip } from "./tooltip.js"
 import { ProgressBar } from './progressBar.js';
 import * as utils from "./utilities.js"
+import { SoccerMoveButton } from './panels.js';
 
-const icons = utils.importAll(require.context('./Assets/UI', false, /\.(gif|jpe?g|svg|png)$/))
-const artifacts = utils.importAll(require.context('./Assets/Icons/Artifacts', false, /\.(gif|jpe?g|svg|png)$/))
-const weapons = utils.importAll(require.context('./Assets/Icons/Weapons', false, /\.(gif|jpe?g|svg|png)$/))
+export function WeaponIcon(props) {
+  let tooltip = <div className="generic-tooltip">
+    <p>{props.data.name}</p>
+    <p>{props.data.description}</p>
+  </div>
+  let className = (props.data.unlocked) ? "" : " locked"
+  return (
+    <Tooltip content={tooltip}>
+      <div className={"wardrobe-item" + className} onClick={() => {
+        if (props.interactable != false && props.data.unlocked)
+        props.app.addPopup({
+          title: "EQUIP WEAPON",
+          description: utils.format("Equip {0}?", props.data.name),
+          buttons: [
+            {text: "Sure", func: function(){Game.travel.equip("weapon", props.data.id, 0)}},
+            data.popupButtons.cancel,
+          ]
+    })}}>
+      <img src={props.data.icon}/>
+    </div>
+    </Tooltip>
+  )
+}
 
 export class Wardrobe extends React.Component {
   pages = [
@@ -41,34 +62,56 @@ export class Wardrobe extends React.Component {
     var panel = this.props.app.state.wardrobePanel
     var panelIndex = this.pages.indexOf(panel)
     if (panel == "moves") {
-
+      for (let x in data.moves) {
+        let move = Game.travel.getMove(x);
+        if (move.level > 0) {
+          items.push(
+            <SoccerMoveButton data={move} forSale={false} key={x}/>
+          )
+        }
+        else {
+          items.push(
+            <Button text={"???"} disabled={true} key={x}/>
+          )
+        }
+      }
     }
     else if (panel == "weapons") {
       for (let x in data.weapons) {
-        var element = <div className="wardrobe-item" key={x} onClick={() => {this.props.app.addPopup({
-          title: "EQUIP WEAPON",
-          description: utils.format("Equip {0}?", data.weapons[x].name),
-          buttons: [
-            {text: "Sure", func: function(){Game.travel.equip("weapon", x, 0)}}
-          ]
-        })}}>
-          <img src={data.weapons[x].icon}/>
-        </div>
+        var element = <WeaponIcon key={x} app={this.props.app} data={Game.travel.getWeapon(x)}/>
   
         items.push(element)
       }
     }
     else if (panel == "artifacts") {
       for (let x in data.artifacts) {
-        var element = <div className="wardrobe-item" key={x} onClick={() => {this.props.app.addPopup({
-          title: "EQUIP ARTIFACT",
-          description: utils.format("Equip {0}?", data.artifacts[x].name),
-          buttons: [
-            {text: "Sure", func: function(){Game.travel.equip("artifact", x, 0)}}
-          ]
-        })}}>
-          <img src={artifacts[data.artifacts[x].icon]}/>
-        </div>
+        let art = Game.travel.getArtifact(x)
+        // var element = <div className="wardrobe-item" key={x} onClick={() => {this.props.app.addPopup({
+        //   title: "EQUIP ARTIFACT",
+        //   description: utils.format("Equip {0}?", data.artifacts[x].name),
+        //   buttons: [
+        //     {text: "Sure", func: function(){Game.travel.equip("artifact", x, 0)}}
+        //   ]
+        // })}}>
+        //   <img src={data.artifacts[x].icon}/>
+        // </div>
+
+        var element = <Icon
+          key={x}
+          data={art}
+          tooltip={<ArtifactTooltip data={art}/>}
+          onClick={() => {
+            if (art.unlocked)
+              this.props.app.addPopup({
+                title: "EQUIP ARTIFACT",
+                description: utils.format("Equip {0}?", data.artifacts[x].name),
+                buttons: [
+                  {text: "Sure", func: function(){Game.travel.equip("artifact", x, 0)}},
+                  data.popupButtons.cancel,
+                ]
+              }
+          )
+        }}/>
 
         items.push(element)
       }
@@ -79,13 +122,15 @@ export class Wardrobe extends React.Component {
         <Header text="-----------WARDROBE-----------"></Header>
         <p>Equip your cool stuff here! The average person can carry 1 weapon, 2 soccer moves and 2 artifacts at a time.</p>
         <div className="wardrobe-category-selector">
-            <img className="arrow-button" src={icons["arrow_button_left.svg"]} onClick={() => this.switchPage(-1)}></img>
+            <img className="arrow-button" src={data.images.ui["arrow_button_left.svg"]} onClick={() => this.switchPage(-1)}></img>
             <Header text={this.headers[panelIndex]}></Header>
-            <img className="arrow-button" src={icons["arrow_button_right.svg"]} onClick={() => this.switchPage(1)}></img>
+            <img className="arrow-button" src={data.images.ui["arrow_button_right.svg"]} onClick={() => this.switchPage(1)}></img>
         </div>
-        <div className="wardrobe-items">
+        <div className={"wardrobe-items" + (" wardrobe-" + panel)}>
           {items}
         </div>
+        <Divisor height={"40px"}/>
+        <Button text={"UNEQUIP"} func={() => {Game.travel.unequip(panel)}}/>
         <Button text="BACK" func={() => this.props.app.openPanel("home", "right")}></Button>
       </div>
     )

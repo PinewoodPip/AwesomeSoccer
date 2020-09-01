@@ -18,7 +18,7 @@ export class BallsPanel extends React.Component {
 
     for (var x in data.balls) {
       var ball = data.balls[x];
-      var element = <BallItem data={ball} key={x}></BallItem>
+      var element = <BallItem key={x} data={ball} locked={!Game.ballManager.state.unlocked.includes(x)}></BallItem>
       elements.push(element)
     }
 
@@ -50,7 +50,7 @@ export class BallItem extends React.Component {
   render() {
     return (
       <div className="ball-icon" onClick={() => Game.ballManager.set(this.props.data.id)}>
-        <img src={this.props.data.img}></img>
+        <img className={this.props.locked ? "locked" : ""} src={this.props.data.img}></img>
       </div>
     )
   }
