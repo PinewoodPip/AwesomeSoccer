@@ -91,6 +91,7 @@ export function SoccerMoveButton(props) {
     text={props.data.name.toUpperCase()}
     func={func}
     glowing={props.glowing}
+    disabled={props.disabled}
   ></Button>
 
   return (
@@ -205,12 +206,16 @@ export function ConfigOption(props) {
 
 export function Config(props) {
   let configWinrate = <NumericInput value={Game.config.winrateRounding} min={0} max={5} func={(e) => {Game.config.winrateRounding = e}}/>
+  let configScale = <NumericInput step={0.1} value={Game.config.scaleAmount} min={0.6} max={1.1} func={(e) => {Game.config.scaleAmount = e}}/>
   let winrateText = (Game.config.preferLosses) ? "Lossrate rounding" : "Winrate rounding";
   return (
     <div className="flexbox-vertical">
       <p className="big-text"><b>----------CONFIG----------</b></p>
       <ConfigOption text={"Prefer losses"}  inputElement={<Checkbox ticked={Game.config.preferLosses} func={() => {Game.config.preferLosses = !Game.config.preferLosses}}/>}/>
       <ConfigOption text={winrateText} inputElement={configWinrate}/>
+      <GenericTooltip content={<p>Adjusts the scale of the game interface. If you screw this up, you can reset it by loading the page with "?resetScale=true" appended to the end of the URL. Does not affect tooltips.</p>}>
+        <ConfigOption text={"Interface Scale"} inputElement={configScale}/>
+      </GenericTooltip>
       <ConfigOption text={"Hide logo"}  inputElement={<Checkbox ticked={Game.config.hideLogo} func={() => {Game.config.hideLogo = !Game.config.hideLogo}}/>}/>
       <Button text="TUTORIALS" func={() => props.app.openPanel("tutorials", "right")}></Button>
 

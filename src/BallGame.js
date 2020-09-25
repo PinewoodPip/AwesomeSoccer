@@ -727,10 +727,12 @@ export var config = {
   hideLogo: false,
   winrateRounding: 2,
   skipTutorials: false,
+  scaleAmount: 1,
 }
 export var saveMetaData = {
   protocol: data.global.saveProtocol,
   version: data.global.version,
+  hasSeenCookieWarning: false,
 }
 export var ballGame = new BallGame();
 export var stats = new Stats();

@@ -57,8 +57,9 @@ export function Checkbox(props) {
 }
 
 export function NumericInput(props) {
+  let step = (props.step != undefined) ? props.step : 1;
   return (
-    <input className="num-input" type="number" value={props.value} min={props.min} max={props.max} onChange={(e) => {props.func(e.target.value); Game.main.render()}}></input>
+    <input className="num-input" type="number" value={props.value} min={props.min} max={props.max} step={step} onChange={(e) => {props.func(e.target.value); Game.main.render()}}></input>
   )
 }
 

@@ -83,6 +83,9 @@ X base leg break chance feels too high
 
 
 - 25/09/20
+X add option to scale ui
+X fix soccer moves no longer being disabled when sweaty
+X add cookie warning
 X defeat messages for enemies
 X congrats message after beating forest boss
 X grant a gmg after beating bosses for first time

@@ -15,6 +15,7 @@ import { Wardrobe, WeaponIcon } from "./wardrobe.js"
 import * as utils from "./utilities.js"
 import { Stat, Stats, TravelPanel, HomeButtonPanel, Gym, Config, ConsumablesPanel, CombatStats, Equips, Forge, TutorialsMenu } from "./panels.js"
 import { Beforeunload } from 'react-beforeunload';
+import { isMobile } from "react-device-detect";
 
 function importAll(r) {
   let images = {};
@@ -147,6 +148,16 @@ class App extends React.Component{
       console.log("HTML PROGRAMMING ENGAGED!!!")
       data.global.production = false;
     }
+
+    // url param to reset scale if you fuck shit up
+    if (params.get("resetScale") == "true") {
+      Game.config.scaleAmount = 1;
+    }
+
+    if (data.global.production && !Game.saveMetaData.hasSeenCookieWarning) {
+      window.alert("We're a European site, so we must inform you that this site uses localstorage to save your game. By using pinewood.team you agree with our usage of cookies and other browser storage.")
+      Game.saveMetaData.hasSeenCookieWarning = true;
+    }
   }
 
   addPopup(popup) {
@@ -247,9 +258,12 @@ class App extends React.Component{
       <DebugButtons app={this}/>
     </div> : null;
 
+    // on mobile devices, scale the whole page down a bit
+    let style = (Game.config.scaleAmount != "1") ? {transform: "scale({0})".format(parseFloat(Game.config.scaleAmount))} : null;
+
     return (
       <Beforeunload onBeforeunload={() => {Game.main.beforeUnload()}}>
-        <div className="App">
+        <div className="App" style={style}>
           {largeInterface}
           {popup}
           {logo}
@@ -325,6 +339,9 @@ export function DebugButtons(props) {
             }}></Button>
             <Button text="pass turn" func={function(){
               Game.combatManager.pass(Game.combatManager.player)
+            }}></Button>
+            <Button text="gain xp" func={function(){
+              Game.levelling.gainXp(200)
             }}></Button>
           </div>
   )
