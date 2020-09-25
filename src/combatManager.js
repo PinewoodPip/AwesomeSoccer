@@ -229,7 +229,10 @@ export class CombatManager {
       travel.state.bestiary[this.area.id].fightsWon += 1;
     }
     else {
-      this.log.push("You have been defeated and give up.")
+      // this.log.push("You have been defeated and give up.")
+
+      // if you died against a boss, refund some areaProgress
+      travel.state.areaProgress[this.area.id] += travel.bossRequirement * data.global.areaProgressRefund;
 
       setTimeout(() => {
         this.closeCombat("defeat");

@@ -603,6 +603,7 @@ export const forestEntities = {
         description: "TODO",
         skills: [
             {id: "maul"},
+            {id: "split_in_half", weight: 7},
             {id: "eat_honey", weight: 10},
         ],
         deltaOverride: {

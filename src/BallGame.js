@@ -342,7 +342,7 @@ class ColorManager {
     let totalWeight = 0;
     let unlockables = [];
     for (let x in data.colors) {
-      if (!this.state.unlocked.includes(data.colors[x])) {
+      if (!this.state.unlocked.includes(data.colors[x].id)) {
         unlockables.push(data.colors[x]);
         totalWeight += data.colors[x].weight;
       }
@@ -614,6 +614,10 @@ class Levelling {
   didRoll() {
     if (!combatManager.inCombat) {
       var xp = 2;
+      // reduce xp gained from kicking starting from lvl 5
+      xp -= Math.max(0, (this.state.level-4) * 0.15)
+      xp = utils.limitRange(xp, 0.2, Infinity)
+
       if (ballGame.state.streak >= 6)
         xp += 2*(ballGame.state.streak-5); 
       this.gainXp(xp)
@@ -621,7 +625,7 @@ class Levelling {
   }
   
   gainXp(amount) {
-    amount = utils.round(amount, 0)
+    amount = utils.round(amount, 1)
     this.state.xp += amount;
     this.state.totalXp += amount;
 
@@ -746,3 +750,4 @@ export var combatManager = new CombatManager();
 export var main = new Main();
 
 main.loadSave()
+setInterval(() => {main.render()}, 500)

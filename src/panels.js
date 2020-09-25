@@ -226,19 +226,24 @@ export function Config(props) {
   )
 }
 
+function getConsumableTooltip(item, usable=true) {
+  let clickToUseText = (item.isUsable && usable) ? <p>{"Click to use!"}</p> : null;
+
+  return <div className="generic-tooltip">
+    <p>{item.name}</p>
+    <p>{"{0}/{1} Stored".format(item.amount, item.maxStacks)}</p>
+    <p></p>
+    <div>{item.description}</div>
+    {clickToUseText}
+  </div>
+}
+
 export function getConsumableTiles(showLocked=false, showOnlyUsable=true) {
   let consumables = []
   for (let x in data.consumables) {
     let item = Game.travel.getConsumable(x)
-    let clickToUseText = (item.isUsable) ? <p>{"Click to use!"}</p> : null;
 
-    let tooltip = item.unlocked ? <div className="generic-tooltip">
-      <p>{item.name}</p>
-      <p>{"{0}/{1} Stored".format(item.amount, item.maxStacks)}</p>
-      <p></p>
-      <p>{item.description}</p>
-      {clickToUseText}
-    </div> : <p>???</p>
+    let tooltip = item.unlocked ? getConsumableTooltip(item) : <p>???</p>
 
     if (!item.isUsable && showOnlyUsable) {
 
@@ -628,12 +633,21 @@ export function LootScreen(props) {
     let drop = props.data.drops[x];
     switch (drop.type) {
       case "weapon": {
-        items.push(<WeaponIcon key={x} data={Game.travel.getWeapon(drop.id)}/>)
+        items.push(<WeaponIcon interactable={false} key={x} data={Game.travel.getWeapon(drop.id)}/>)
         break;
       }
       case "artifact": {
-        items.push(<ArtifactIcon key={x} data={Game.travel.getArtifact(drop.id)}/>)
+        items.push(<ArtifactIcon func={()=>{}} key={x} data={Game.travel.getArtifact(drop.id)}/>)
         break;
+      }
+      case "consumable": {
+        let item = Game.travel.getConsumable(drop.id)
+        items.push(<Tooltip content={getConsumableTooltip(item, false)} key={x}>
+          <Icon
+            img={item.icon}
+            func={() => {}}
+            key={x}/>
+        </Tooltip>)
       }
     }
   }

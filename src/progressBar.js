@@ -6,6 +6,7 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { renderStatuses } from './combatComponents.js';
 import { Tooltip } from "./tooltip.js"
+import * as utils from "./utilities.js"
 
 function importAll(r) {
   let images = {};
@@ -41,7 +42,7 @@ export class ProgressBar extends React.Component {
         var tooltip = <div className="generic-tooltip">
           <p>{"Level " + Game.levelling.state.level}</p>
           <p></p>
-          <p>{Game.levelling.state.xp + "/" + Game.levelling.goal + " XP"}</p>
+          <p>{utils.round(Game.levelling.state.xp) + "/" + Game.levelling.goal + " XP"}</p>
           {statuses}
         </div>
 

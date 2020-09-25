@@ -70,6 +70,9 @@ better loot screen
 - remove unequip button from items tab
 - ball descriptions
 - fix comabt log spam when spamming ball while ded
+- fix dots not killing enemies
+- fix dots not ticking when stunned
+- chec why utils round rounds 0.9 to 1 with 1 places setting
 
 -- KEY items
 - something that lets you view enemy stats in combat
@@ -83,6 +86,16 @@ X base leg break chance feels too high
 
 
 - 25/09/20
+X fix items not appearing in combat
+X don't grant wpallowance on turn 1
+X fix awesomeblue color being unlockable
+X consumables dont show in loot
+X fix click to use text on looted consumables
+X reudce xp from kicking
+X refund areaprogress
+- status effect descriptions, somehow
+- some kind of way to nullify enemy healing - maybe a consumable?
+
 X add option to scale ui
 X fix soccer moves no longer being disabled when sweaty
 X add cookie warning

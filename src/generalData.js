@@ -17,12 +17,13 @@ export const drops = entityData.drops;
 export const global = {
     version: "v0.7.0",
     protocol: 0,
-    production: false,
+    production: true,
 
     // global game tuning
     shoeMaxQualityModifier: 1,
     enemyXpMultiplier: 1,
-    areaProgressNeededMultiplier: 1.5,
+    areaProgressNeededMultiplier: 1.4,
+    areaProgressRefund: 0.5,
 }
 
 export const emptyStatSheet = entityData.emptyStatSheet;
@@ -116,7 +117,7 @@ export const travelAreas = {
             "{0} stands in your way!"
         ],
         boss: {id: "hexer", weight: 1},
-        bossEntryMessage: "{0} TODO!",
+        bossEntryMessage: "{0} senses your scent!",
         nextArea: "battlefield",
         areaDrops: drops.forest,
         shoeQualityMult: 1.4,
@@ -1065,6 +1066,7 @@ export const skills = {
         base: "base_no_dmg",
         name: "Menacing Look",
         behaviour: "attack",
+        target: "enemy",
         log: {
             autoLogDmg: false,
             use: {msg: "The sight of {0} menaces you...", params: ["user"]}
@@ -1256,6 +1258,7 @@ export const skills = {
         base: "base_no_dmg",
         name: "Generic Dialogue",
         behaviour: "attack",
+        target: "enemy",
         log: {
             autoLogDmg: false,
             use: {msg: "{0} starts a generic dialogue about his quest's objective!", params: ["user"]}
@@ -1268,6 +1271,7 @@ export const skills = {
         base: "base_no_dmg",
         name: "Persuasion Check",
         behaviour: "attack",
+        target: "enemy",
         log: {
             autoLogDmg: false,
             use: {msg: "{0} initiates a persuasion check!", params: ["user"]}
@@ -1322,7 +1326,7 @@ export const skills = {
         }
     },
     ward: {
-        base: "base_attack",
+        base: "base_no_dmg",
         name: "Ward",
         behaviour: "self_buff",
         target: "self",
@@ -1340,7 +1344,7 @@ export const skills = {
         behaviour: "attack",
         log: {
             autoLogDmg: false,
-            use: {msg: "{0} pounces on you, dealing {0} damage!", params: ["user", "dmg"]}
+            use: {msg: "{0} pounces on you, dealing {1} damage!", params: ["user", "dmg"]}
         },
         statuses: [
             {id: "slimed", chance: 1, duration: 3},
@@ -1357,7 +1361,7 @@ export const skills = {
         },
         log: {
             autoLogDmg: false,
-            use: {msg: "{0} splits you in fucking half, dealing {0} damage!", params: ["user", "dmg"]}
+            use: {msg: "{0} splits you in fucking half, dealing {1} damage!", params: ["user", "dmg"]}
         },
     },
     slam: {
@@ -1369,7 +1373,7 @@ export const skills = {
         },
         log: {
             autoLogDmg: false,
-            use: {msg: "{0} slams onto you, dealing {0} damage!", params: ["user", "dmg"]}
+            use: {msg: "{0} slams onto you, dealing {1} damage!", params: ["user", "dmg"]}
         },
         statuses: [
             {id: "slimed", chance: 1, duration: 3},
@@ -1381,7 +1385,7 @@ export const skills = {
         behaviour: "attack",
         log: {
             autoLogDmg: false,
-            use: {msg: "{0} slashes at you, dealing {0} damage!", params: ["user", "dmg"]}
+            use: {msg: "{0} slashes at you, dealing {1} damage!", params: ["user", "dmg"]}
         },
     },
     bandit_strong_attack: {
@@ -1409,6 +1413,7 @@ export const skills = {
         base: "base_no_dmg",
         name: "Insult",
         behaviour: "attack",
+        target: "enemy",
         log: {
             autoLogDmg: false,
             use: {msg: "{0} insults you!", params: ["user"]}
@@ -1444,6 +1449,7 @@ export const skills = {
         base: "base_no_dmg",
         name: "Confusing Interface",
         behaviour: "attack",
+        target: "enemy",
         log: {
             autoLogDmg: false,
             use: {msg: "{0} brings up a confusing interface!", params: ["user"]}
@@ -1456,6 +1462,7 @@ export const skills = {
         base: "base_no_dmg",
         name: "Accidental Sell",
         behaviour: "attack",
+        target: "enemy",
         log: {
             autoLogDmg: false,
             use: {msg: "{0} brings up a confusing interface!", params: ["user"]}
@@ -1503,10 +1510,13 @@ export const skills = {
         ],
     },
     dodge_spam: {
-        base: "base_attack",
+        base: "base_no_dmg",
         name: "Dodge Spam",
         behaviour: "attack",
         target: "self",
+        dmg: {
+            dodgeable: false, // is this needed?
+        },
         log: {
             autoLogDmg: false,
             use: {msg: "{0} starts spamming dodges!", params: ["user"]}

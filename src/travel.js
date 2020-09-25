@@ -413,7 +413,7 @@ export class TravelManager {
   
       item.amount = this.state.loadout.consumables[id].amount;
       item.unlocked = this.state.loadout.consumables[id].unlocked;
-      item.isUsable = (item.notUsable == undefined && ((!combatManager.inCombat && item.ooc)))
+      item.isUsable = (item.notUsable == undefined || ((!combatManager.inCombat && item.ooc)))
   
       return item;
     }
@@ -512,7 +512,6 @@ export class TravelManager {
   
     rollLoot(enemy, area) {
       var unlocks = [];
-      let gotNewEquipment = false;
       let drops = [
         ...enemy.def.drops,
         ...area.areaDrops,

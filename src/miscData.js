@@ -17,7 +17,7 @@ export const colors = {
         name: "Awesome Blue",
         id: "awesomeBlue",
         color: "#add8e6",
-        weight: 100,
+        weight: 0,
     },
     calidAugust: {
         name: "Calid August",

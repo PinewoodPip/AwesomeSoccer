@@ -503,8 +503,8 @@ export class Player extends Entity {
   }
 
   onTurnStart() {
-    // passive willpower gain (turnWp stat)
-    if (this.willpowerPerTurn > 0) {
+    // passive willpower gain (turnWp stat) - CANNOT HAPPEN ON TURN 1
+    if (this.willpowerPerTurn > 0 && combatManager.round > 1) {
       this.gainWillpower(this.willpowerPerTurn)
     }
 
