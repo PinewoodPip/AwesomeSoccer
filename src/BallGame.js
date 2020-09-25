@@ -513,7 +513,8 @@ export class Main { // we use this to force React.js to render from game js
       elements.push({value: hit.dmg, type: hit.dmgType})
     }
 
-    if (utils.noneCheck(hit.heal)) {
+    console.log(hit)
+    if (utils.noneCheck(hit.heal) && !isNaN(hit.heal)) {
       elements.push({value: hit.heal, type: "healing"})
     }
 

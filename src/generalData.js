@@ -17,7 +17,7 @@ export const drops = entityData.drops;
 export const global = {
     version: "v0.7.0",
     protocol: 0,
-    production: true,
+    production: false,
 
     // global game tuning
     shoeMaxQualityModifier: 1,

@@ -454,7 +454,7 @@ export class CombatManager {
       statuses: [],
     };
 
-    if (def.heal != undefined) {
+    if (utils.noneCheck(def) && def.heal != undefined) {
       hit.heal = def.heal.flatAmount + (def.heal.percentAmount * user.maxHp)
     }
 
@@ -491,7 +491,7 @@ export class CombatManager {
     hit = (postProcessFunc != null) ? postProcessFunc(hit) : hit;
 
     // roll statuses
-    if (def != null) { // can only roll statuses from a skill def
+    if (utils.noneCheck(def)) { // can only roll statuses from a skill def
       hit = this.rollStatuses(hit, def)
     }
 
