@@ -3,10 +3,15 @@ engraved ring of healing:
 - now increases OOC regen by 4% of your max hp
 
 changed text in wardrobe
+if you prefer losses, the "winrate rounding" setting has its text adjusted properly. losers rejoice!
 looting dry streak boost is now 0.05, down from 0.1
 skills no longer get a dmg bonus from willpower NO
 breakdawner use text changed
 nerfed intderbow dot?
+new balls menu
+new combat stats page
+minor aesthetic improvements all over
+new area, the forest
 combat log now has a scrollbar
 gym is now accessed from the "shop"
 minor changes to some text
@@ -19,58 +24,264 @@ damage reduction form defense is now capped at 0.1x
 empowered penalty kick now deals 30% more dmg
 penalty kick initial hit now ignores all defense
 monocles of duality statuses no longer cancel each other out
+new enemies in temple
+new combat stats
+new unlockables
+better loot screen
 //changed badge tiers: the initial circle badge now is used longer
-
-
-///
-ADD EMPOWERED CHECK TO ROLLDMG
-///
 
 --- todo
 - move strings to strings.js
 - nerfed should require more effort to upkeep
 - change wp bonus on weps to require an artifact
 - look into queued popups not working - this is once again caused by setstate being async
-- perk shop - do they all work?
-- special ball powers
-- randomized strings for some popups, like unable to buy perks
-- support jsx for popup msg
-- LEG BREAKS!!!
-X fix ball button img and trophy
-X organize the way we import images
-- make ball not move when its clicked first time
-X the flow
-X levelup milestones
 - lock travel until lvl req
-- perk/artifact that reimplements wp extra damage
-X wp gain mult stat
 - getAverageDmg should maybe consider armor
-- unequip button
-- set ballbutton to not be interactable during enemy turn
-X round wp and sweat
-X make enemies pick skills
-- saving
-- cheat buttons
-X make stacks work on dots
-X fix 0 duration statuses when stacked
 - combat log improvements
-- implement nested bases
-X improve miss text
-- config menu
-- cleanup weapon tooltips
+- perk/artifact that reimplements wp extra damage
 - use the right skillnames for weapons
 - what was dmgbonusflat?
-- prevent negative defense?
 - "equip?" prompt on purchase
-- fix maxhp changes not bounding hp
-- consumables
+- bestiary
+- implement nested bases
+- enable caching
+- fix xp bar sorting
+- arena and arena tickets
+- write better entry msgs
+- better lvl up milestone msgs (use new lines)
+- periodic autosaves
+- updated design doc with history
+- experiment with some crazy new creative combat stuff
+- xp overflow
+- different colors for combat log
+- fix being able to remove shoes that are in the forge
+- fix defense display in stat card
+- base leg break chance is now 30%, down from 35%
+- modify quality of dropped shoes based on enemy lvl/area
+- something to note: crafted suffixes become prefixes when merged. keep this behaviour?
+- limit the amount of mods a shoe can have? or make lp cost scale harshly
+- make multiple suffix shoes use prefixes in the suffix part
+- cleansing talisman should make you deal religious damage
+- add new balls:
+-- meatball
+-- cube
+-- crystal ball (with functionality later)
+- fix ball icons in shop expanding when you hover over ball
+- remove unequip button from items tab
+- ball descriptions
+- fix comabt log spam when spamming ball while ded
+
+-- KEY items
+- something that lets you view enemy stats in combat
+- bestiary
+- some item that lets you toggle scaling to your lvl
+
+-- PLAYTESTING NOTES
+- 24/09/20
+X base leg break chance feels too high
+- if player is spamming the ball they may miss popups. delay popup buttons from being active for a few secs?
+
+
+- 25/09/20
+X defeat messages for enemies
+X congrats message after beating forest boss
+X grant a gmg after beating bosses for first time
+X indication for bosses
+X fixed flow perk
+X fix being able to use the ball while dead
+X minor polishing
+x make soccer move tooltips use ----- in title for funny consistency
+
+- 24/09/20
+X lock balls menu until you get an lp
+X add way to re-enable dev cheats on prod builds
+X fix being able to craft without the lp req
+X hide wp and sweat until you unlock combat
+X fix lp gain
+X version indicator
+X improve save button
+- credits page
+- "click to equip!" on weps/artifacts
+- key items tab in wardrobe (oddly enough, these do not seem to fit any keyholes.)
+X alpha B armor perk, increases stat boosts from shoes
+- powerbank artifact, stores excess willpower ("Stores all type of power. Even the will type of power.")
+- finish hard rubber and climbing shoes
+X add text to every wardrobe category
+X improve display for infinite statuses
+X tooltips for more stats
+X per-area multiplier to shoe quality
+X Tormentful modifier
+X Mental Gymnastics perk
+X convert soccer move descs to jsx and mention empowering costs
+X soccer move tooltips in combat
+- look into feign injury lvl -sweat perk not working
+
+- 23/09/20
+X allow equipping second artifact
+X cleanup weapon tooltips
+X make proper drop tables
+X fix crits
+X unlockable combat stats screen
+X clean up artifact tooltips
+X add chronicle artifact
+X fix areas not unlocking
+X drops per area
+X fix unlocked stuff appearing in loot screen
+
+- 22/09/20
+- don't cast healing spells when full hp for ai
+X clean up soccer move tooltips
+X fix weapons and artifacts not being displayed in loot screen
+- fix wrong text order for feign injury, happens only on fail
+X lock gym/wardrobe/backgrounds until a certain point
+X rewatching tutorials
+X more looting improvements, use icons
+X fix manipulation display
+X show xp gained in loot screen
+X item tooltips
+X defeat messages
+X fix "1 turns" in status display
+X fix breakdawner
+X revise leveluprewards
+X put some dividers into gym tooltips
+X reverse the combat log
+X make a different hr between rounds
+X welcome back message
+X add unlock messages for travel and gym
+X add ball special powers
+X add weakening_scream skill
+X add clarity nut item
+X lock bgs until you have unlocked one
+X fix duplicate area unlock dialogs if you repeated a boss
+X make travel button glow if boss
+
+- 19/09/20
+X tutorial prompts
+X button feedback when clicked
+
+- 17/09/20
+X dmg multipliers and resistances
+X forest
+X artifact: realitious virtuality binocles
+X artifact: clipboard o' deadlines
+X artifact: racing car chair
+X soccer move: self-reserve
+X add a toggle for showing debug buttons
+X round stat displays
+X add confused self-dmg
+X add padding between equips and hp bar
+X fix null cost in move tooltip at max lvl
+X hide locked areas
+X fix spacing in area menu
+X tooltips for areas
+X make disabled buttons not light up when selected
+
+- 16/09/20
+X shoe dual-wielding
+X make forging actually deduct lp lmaooooo
+X make lp cost consider both shoes to prevent abuse
+X split the data file up
+X implement disarmed flag
+- improve hitsplats, make them slower
+- boss death quotes and last words
+
+- 15/09/20
+X add work amount to saved shoes
+X limit the amount of shoes you can own at 1 time
+X fix square svg error
+X crafting new modifiers
+X forge help popup
+X show prefixes/suffixes in shoe name
+X fix goal underflow when levelling up
+X function to detect if a shoe is equipped
+X show craft result in the forge
+X fix being able to craft modifiers the base shoe already had
+- add suffix that removes sweat on ball kick/weapon?
+X prompt upon trying to discard valuable shoe
+X add some more shoes
+X legs broken stat
+X reset forge elements upon entering
+
+- 14/09/20
+X add leg breaks
+X fix xp goal desynching on load
+X fix equipped ball not being synched between loads
+- rename all shoes to "X shoe" (singular)
+X leg break reduction for shoes
+X negative modifiers
+X add shoe drops
+- make manipulation affect positive buffs
+X magic find stat
+X hit splats
+X add special suffixes: insight, consistency, crusade
+X support saving for shoes
+
+-- 13/09/20
+- revise tooltip text
+X shoe basics
+X show equips during combat
+
+-- 12/09/20
+- forest area
+- stat displays for the new stats
+- make the combat stat card an unlockable
+X get rid of % in places that reference willpower
+- debug new stats
+X store health in saves
+X unlockables count
+X new perk for turnwp
+
+-- 11/09/20
+X import/export
+X save current day / daily record thing
+X check if adding new props to state works - maybe after load, perform a scan of the save and add default values for undef thingies
+X fix items key error
+X killfreak temple
+X new stats: wpgen, turnwp, statusresistance
+X glowing soccer move button if empowerable
+X travel buttons should glow if boss
+
+-- 09/09/20
+X saving
+X fix: loading save does not update combat player entity
+X fights won stat
+X market
+
+-- 05/09/20
+X boss mechanics
+X randomized popupbuttons
+X disable blocking/dodging if target is stunned
+X combat enter messages
+
+- make wp mult modifiable by statuses
+X combat stats screen
+X not enough lp ball popup
+X stats screen (half-done)
+
+-- 04/09/20
+X consumable drops
+X show locked consumables in wardrobe
+X ball unlock msg
+X consumable tooltips
+X ball tooltips
+X improve weaponicon code
+X check if sweat works
+X street
+X fix enemy spawn rng
+
+-- 2/09/20
+X add consumables
+X add log text for non-skill consumables
 
 -- 1/09/20
 X add zeal artifact
-- move some things to separate files
+X fix empty tooltips on stats
+X fix winrate printing twice in stats
+X fix winning popup happening multiple times
+X fix hp rounding
 X fix flexbox for soccer moves in wardrobe
-- glowing soccer move button if empowerable
-- fix xp bar sorting
+X config menu
+X make ball not move when its clicked first time
 X unequip button
 X autogenerate ids for moves
 
@@ -79,8 +290,6 @@ X add most artifacts
 X sweat for soccer moves
 X fix spammable combat buttons
 X grey out ball button out of turn
-
-// gotta make the bottled glass penalty tick down ooc
 
 -- 30/08/20
 X soccer moves
@@ -121,3 +330,15 @@ X clearing on combat
 X ooc statuses
 X LOGGING
 X FIX DURATION BEING DECREASED BY 2
+
+// old
+X improve miss text
+X fix ball button img and trophy
+X organize the way we import images
+X the flow
+X levelup milestones
+X round wp and sweat
+X make enemies pick skills
+X make stacks work on dots
+X fix 0 duration statuses when stacked
+X wp gain mult stat

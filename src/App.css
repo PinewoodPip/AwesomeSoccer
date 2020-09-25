@@ -6,6 +6,22 @@
   filter: brightness(0%);
 }
 
+.box-header {
+  height: 100%;
+  width: 100%;
+  background-color: rgb(179, 179, 179);
+}
+
+/* TEXTS */
+.text-header {
+  font-weight: bold;
+  font-size: 120%;
+}
+
+.text-color-black {
+  color: black;
+}
+
 /* TOOLTIPS */
 .generic-tooltip {
   text-align: center;
@@ -96,7 +112,7 @@
   height: 330px;
   /* border: 1px black solid; */
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   justify-content: flex-end;
   overflow: auto;
   border-top: 1px black solid;
@@ -323,6 +339,7 @@
 }
 
 .ball-text {
+  position: absolute;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -331,7 +348,9 @@
   user-select: none;
 
   font-size: 55px;
-  color: aliceblue
+  color: aliceblue;
+
+  transform: translate(-50%, 50px) !important
 }
 
 .leg-break-img {
@@ -346,6 +365,18 @@
   top: 50%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
+}
+
+.leg-break {
+  /* -ms-transform: translateY(-50%);
+  transform: translateY(-50px); */
+  top: 40%;
+}
+
+.leg-break p {
+  /* width: 100%; */
+  transform: translate(-50%, 50%);
+  width: 400px
 }
 
 /* --------------- STATS --------------- */
@@ -371,9 +402,26 @@ Button {
   height: 39px;
 }
 
-Button[glowing] {
+Button:active {
+  filter: brightness(120%);
+}
+
+Button[glowing=true] {
   /* background-image: url("Assets/UI/button_glowing.gif"); */
-  box-shadow: blueviolet 0px 0px 15px 10px;
+  box-shadow: blueviolet 0px 0px 15px 8px;
+  animation-duration: 2s;
+  animation-name: glowingpulse;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes glowingpulse {
+  from {
+    box-shadow: blueviolet 0px 0px 15px 8px;
+  }
+  to {
+    box-shadow: blueviolet 0px 0px 15px 13px;
+  }
 }
 
 Button[disabled] {
@@ -388,11 +436,11 @@ Button[disabled] {
   transform: translate(5%, 2px); /* wtf?!?!? */
 }
 
-Button:hover {
+Button:hover:not([disabled]) {
   background-image: url("Assets/UI/button_selected.gif");
 }
 
-Button:hover[glowing] {
+Button:hover[glowing=true]:not([disabled]) {
   filter: brightness(150%);
 }
 
@@ -423,6 +471,7 @@ Button:active {
   height: 25px;
   margin: 5px;
   border-radius: 3px;
+  background-color: lightgray;
 }
 
 .checkbox p {
@@ -430,6 +479,28 @@ Button:active {
   margin: 0;
   text-align: center;
   font-size: 120%;
+}
+
+.checkbox-ticked {
+  background-color: lightgreen;
+}
+
+.num-input {
+  width: 35px;
+  height: 20px;
+}
+
+/* --------------- FORGE --------------- */
+.large-interface {
+  z-index: 999;
+  background-color: gray;
+  border: 1px black solid;
+  width: 750px;
+  height: 550px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%)
 }
 
 /* --------------- POP-UPS --------------- */
@@ -494,7 +565,85 @@ Button:active {
   margin-bottom: 10px;
 }
 
+/* --------------- HITSPLATS --------------- */
+.hitsplat-wrapper {
+  width: 100%;
+  position: relative;
+  /* height: 200px; */
+}
+
+.hitsplat {
+  position: absolute;
+  right: 17%;
+  top: 50px;
+  font-size: 150%;
+}
+
+.animate__animated.animate__fadeOutUp {
+  --animate-duration: 1.5s;
+}
+
+.text-default {
+  color: black;
+}
+
+.text-healing {
+  color: green
+}
+
+.text-religious {
+  color: yellow
+}
+
+.text-dot {
+  color: red
+}
+
 /* --------------- MISC --------------- */
+.round-change-hr {
+  border-color: white !important;
+}
+
+.shoeforge-help {
+  position: absolute;
+  transform: translate(660px, 10px);
+}
+
+.unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.config-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flexbox-vertical {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.flexbox-vertical-tight {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* watch out for typos; it aint called justify-items */
+  flex-direction: column;
+}
+
+.flexbox-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
 .icons-flexbox {
   display: flex;
   flex-wrap: wrap;
@@ -513,6 +662,12 @@ Button:active {
   width: inherit;
   height: inherit;
   image-rendering: pixelated;
+}
+
+.icon[smooth] img {
+  width: inherit;
+  height: inherit;
+  image-rendering: auto;
 }
 
 .your-turn {

@@ -1,4 +1,4 @@
-import { travel, combatManager, levelling, ballGame, main } from "./BallGame.js"
+import { travel, combatManager, levelling, ballGame, main, shoes } from "./BallGame.js"
 import update from "immutability-helper"
 import * as utils from "./utilities.js"
 import * as data from "./generalData.js"
@@ -10,12 +10,15 @@ String.prototype.format = function () { // by gpvos from stackoverflow
 
 export class Entity {
   constructor(def, level=1) {
-    var skills = []
+    let skills = []
     for (var x in def.skills) {
       var skill = {};
-      skill.skill = combatManager.skills[def.skills[x]]
+      // skill.skill = combatManager.skills[def.skills[x]]
+      skill.id = def.skills[x].id
       if (def.skills[x].weight == undefined)
-          skill.weight = 100;
+        skill.weight = 20;
+      else
+        skill.weight = def.skills[x].weight
       skills.push(skill)
     }
     this.def = def;
@@ -43,13 +46,19 @@ export class Entity {
   statuses = [];
   _willpower = 0;
   _sweat = 0;
+  charge = 0;
+  chargedSkill = null;
 
   // player has a different one
   get willpowerMult() {
-    return 1;
+    let mult = 1;
+    let stats = this.getRealStats();
+    mult += stats.wpGen;
+
+    return mult;
   }
 
-  get hp() {return utils.round(Math.floor(this._hp, this.maxHp))}
+  get hp() {return utils.round(this._hp)}
   set hp(val) {this._hp = Math.max(Math.min(val, this.maxHp), 0);}
   get isPlayer() {return false;}
   get isDead() {return (this.hp <= 0)}
@@ -68,7 +77,7 @@ export class Entity {
     this._willpower = Math.min(Math.max(val, 0), this.maxWillpower)
   }
   get maxWillpower() {return 1}; //todo
-  get sweat() {return utils.round(this._sweat)}
+  get sweat() {return utils.round(this._sweat, 2)}
   set sweat(val) {
     this._sweat = Math.min(Math.max(val, 0), this.maxSweat)
   }
@@ -88,11 +97,38 @@ export class Entity {
   get critChance() {return this.getRealStats().critChance}
   get critMult() {return this.getRealStats().critMult}
 
+  get manipulation() {return 1 + this.getRealStats().statusResistance}
+
+  get willpowerPerTurn() {return this.getRealStats().turnWp}
+
+  get magicFindMultiplier() {return 1 + this.getRealStats().magicFind}
+
+  get sweatMult() {return (1 - this.getRealStats().sweatMult)}
+  // player overrides this
+  hasFlag(flag) {return false;}
+  get flags() {return []}
+
+  resetChargedSkill() {
+    this.charge = 0;
+    this.chargedSkill = null;
+  }
+
   onTurnStart() {
     this.tickStatuses("onTurnStart");
   }
   onTurnEnd() {
     this.tickStatuses("onTurnEnd");
+  }
+
+  getRandomStatus(neg=false) {
+    let statuses = (neg) ? _.cloneDeep(this.statuses.filter((x) => {return !x.def.positive})) : _.cloneDeep(this.statuses);
+
+    statuses = utils.shuffle(statuses)
+
+    let stat = statuses[0];
+
+    // absolute genius, man, gotta clap myself on the back
+    return this.statuses[this.statuses.indexOf(stat)];
   }
 
   tickStatuses(context) {
@@ -128,23 +164,22 @@ export class Entity {
   }
 
   getStatusStatMods() {
-    var totalStatMods = {
-        baseHp: 0,
-        baseDmg: 0,
-        defense: 0,
-        dmgMult: 0,
-        hpMult: 0,
-        baseAcc: 0,
-        baseDodge: 0,
-        baseBlock: 0,
-        xpReward: 0,
-    };
+    var totalStatMods = _.cloneDeep(data.emptyStatSheet)
+
+    // multiplier for positive statmods
+    let positiveBuffMult = 1;
+    if (this.isPlayer && travel.hasArtifact("chronicle")) {
+      positiveBuffMult = travel.getArtifact("chronicle").tuning.statMult;
+    }
 
     for (let x = 0; x < this.statuses.length; x++) {
         let effect = this.statuses[x];
         var mods = this.statuses[x].def.statMods;
         for (var z in mods) {
-            totalStatMods[z] += (mods[z] * effect.stacks);
+          let val = mods[z]
+          if (val > 0)
+            val *= positiveBuffMult
+          totalStatMods[z] += (mods[z] * effect.stacks);
         }
     }
 
@@ -193,9 +228,10 @@ export class Entity {
     }
   }
 
-  gainWillpower(amount, dmgDone=0, averageDmg=0) {
-    var mult = (averageDmg != 0) ? dmgDone/averageDmg : 1;
-    this.willpower += amount * mult * this.willpowerMult; // todo add wp regen mult stat
+  gainWillpower(amount, dmgDone=0, averageDmg=0, useMultiplier=true) {
+    let mult = (utils.noneCheck(dmgDone)) ? dmgDone/averageDmg : 1;
+    let wpmult = (useMultiplier) ? this.willpowerMult : 1
+    this.willpower += amount * mult * wpmult; // todo add wp regen mult stat
   }
 
   loseWillpower(amount) {
@@ -219,7 +255,12 @@ export class Entity {
   }
 
   gainSweat(amount) {
-    this.sweat += amount;
+    console.log(this.sweatMult)
+    this.sweat += (amount * this.sweatMult);
+  }
+
+  healSweat(amount) {
+    this.sweat -= amount;
   }
 
   heal(amount) {
@@ -227,7 +268,9 @@ export class Entity {
   }
 
   cast(skillId) {
+    console.log(skillId)
     combatManager.skills[skillId].cast(this);
+    main.render();
   }
 
   getHpPercentage() {
@@ -242,27 +285,32 @@ export class Entity {
       realStats[x] += statMods[x]
     }
 
-    // handled by the statuses themselves
-    // if (this.isPlayer && travel.hasArtifact("monocles_of_duality")) {
-    //   let art = travel.getArtifact("monocles_of_duality")
-    //   realStats.critChance += art.tuning.bonusCritChance;
-    //   realStats.baseAcc += art.tuning.bonusAccuracy;
+    if (this.isPlayer) {
+      let shoeMods = shoes.shoeStatMods;
+      for (let x in shoeMods) {
+        realStats[x] += shoeMods[x];
+      }
 
-    //   let status = this.getStatus("monocles_of_duality_status_positive")
-    //   if (status != null) {
-    //     realStats.baseAcc += art.tuning.bonusPrecision * status.stacks
-    //   }
-
-    //   let statusNegative = this.getStatus("monocles_of_duality_status_negative")
-    //   if (status != null) {
-    //     realStats.baseAcc -= art.tuning.bonusPrecision * statusNegative.stacks
-    //   }
-    // }
+      if (travel.state.loadout.weapon == "shield")
+        realStats.baseBlock += 0.1;
+    }
 
     realStats.dmg = Math.max(realStats.baseDmg * realStats.dmgMult, 0);
-    realStats.acc = realStats.baseAcc;
+    realStats.acc = Math.max(realStats.baseAcc, 0);
     realStats.dodge = realStats.baseDodge;
+    realStats.block = realStats.baseBlock;
 
+    if (this.isPlayer) {
+      if (travel.hasArtifact("monocles_of_duality")) {
+        let art = travel.getArtifact("monocles_of_duality")
+        realStats.critChance += art.tuning.bonusCritChance
+      }
+
+      // allowance perk
+      let allowance = travel.getPerk("allowance")
+      realStats.turnWp += allowance.level * allowance.tuning.boost
+    }
+    
     return realStats;
   }
 
@@ -294,7 +342,46 @@ export class Entity {
       hit.user.applyStatus(new statusTypeDict[status.behaviour](hit.user, hit.user, status, 3));
     }
 
-    this.hp -= hit.dmg;
+    let art = travel.getArtifact("realitious_virtuality_binocles")
+    if (this.isPlayer && art.equipped && this.willpower >= art.tuning.cost && hit.dmg >= this.maxHp * art.tuning.threshold) {
+      this.spendWillpower(art.tuning.cost)
+
+      combatManager.log.push("The immersion of your RVBs nullifies damage!")
+    }
+    else {
+      this.hp -= hit.dmg;
+    }
+
+    // self-dmg from confusion etc
+    if (hit.skill != null && hit.user.getRealStats().selfDmg > 0) {
+      let dmgDef = {
+        mult: hit.user.dmg * hit.user.getRealStats().selfDmg,
+        type: "default",
+        range: 0.1,
+        acc: 1,
+        dodgeable: false,
+      }
+      let newhit = {
+        get rawDmg() {return utils.round(this._dmg, 1)},
+        set rawDmg(val) {
+          this._dmg = val;
+        },
+        get dmg() {return utils.round(this._dmg * this.target.dmgReduction, 1)},
+        set dmg(val) {this._dmg = val}, // legacy
+        crit: false,
+        dmgType: "default",
+        empowered: false,
+        user: hit.user,
+        target: hit.user,
+        skill: null,
+        outcome: "hit",
+        averageDmg: combatManager.getAverageDmg(hit.user, dmgDef),
+        get heal() {return utils.round(this._heal)},
+        set heal(val) {this._heal = val},
+        statuses: [],
+      }
+      hit.user.receiveDmg(newhit)
+    }
 
     if (hit.skill != null) {
       if (hit.skill.log.autoLogDmg) {
@@ -323,7 +410,15 @@ export class Entity {
 
     // healing
     if (hit.heal > 0) {
-      hit.user.heal(hit.heal)
+      switch (hit.skill.heal.target) {
+        case "self": {
+          hit.user.heal(hit.heal)
+          break;
+        }
+        case "target": {
+          hit.target.heal(hit.heal);
+        }
+      }
     }
 
     // apply statuses
@@ -333,7 +428,24 @@ export class Entity {
       this.applyStatus(new statusTypeDict[def.behaviour](hit.user, hit.target, def, hit.statuses[x].duration))
     }
 
+    if (hit.user == combatManager.player && hit.target != combatManager.player) {
+      if (hit.user.hasFlag("willpowerOnHit")) {
+        hit.user.gainWillpower(0.05, 0, 0, false)
+      }
+    }
+
+    // generate hitsplat
+    main.generateHitsplat(hit)
+
     main.render();
+  }
+
+  getDamageMultiplier(type) {
+    return 1 + this.getRealStats()[data.dmg_dict[type]];
+  }
+
+  getResistanceMultiplier(type) {
+    return 1 - this.getRealStats()[data.resist_dict[type]];
   }
 
   logDmg(hit) {}
@@ -343,6 +455,24 @@ export class Player extends Entity {
   constructor(def, level=1) {
     super(def, level);
     this.scale(levelling.state.level);
+  }
+
+  hasFlag(flag) {
+    let flags = this.flags;
+    return flags.includes(flag);
+  }
+
+  get flags() {
+    let flags = [...shoes.getShoeFlags()]
+
+    // status effect flags
+    for (let x in this.statuses) {
+      let status = this.statuses[x]
+      for (let z in status.def.flags) {
+        flags.push(status.def.flags[z]);
+      }
+    }
+    return flags;
   }
 
   useWeapon() {
@@ -373,6 +503,11 @@ export class Player extends Entity {
   }
 
   onTurnStart() {
+    // passive willpower gain (turnWp stat)
+    if (this.willpowerPerTurn > 0) {
+      this.gainWillpower(this.willpowerPerTurn)
+    }
+
     if (travel.hasArtifact("bottled_glass")) {
       let art = travel.getArtifact("bottled_glass")
       let status = data.statuses[art.tuning.debuff]
@@ -393,6 +528,10 @@ export class Player extends Entity {
       combatManager.log.push("You're stunned!")
       combatManager.playerUsedAction();
     }
+    else if (this.chargedSkill != null) {
+      combatManager.skills[this.chargedSkill].cast(this);
+      combatManager.playerUsedAction();
+    }
   }
 
   get isPlayer() {return true;}
@@ -400,8 +539,25 @@ export class Player extends Entity {
     let mult = 1;
 
     let flow = travel.getPerk("flow")
-    if (flow.unlocked) {
-      mult += flow.tuning.baseBoost + (flow.tuning.levelBoost * flow.level-1)
+    if (flow.unlocked && ballGame.state.streak >= 3) {
+      mult += flow.tuning.baseBoost + (flow.tuning.levelBoost * (flow.level-1))
+    }
+
+    let stats = this.getRealStats();
+    mult += stats.wpGen;
+
+    let art = travel.getArtifact("clipboard")
+    if (art.equipped) {
+      let hpPercentage = this.hp / this.maxHp;
+
+      if (hpPercentage > art.tuning.threshold) {
+        let steps = (hpPercentage - art.tuning.threshold) / 0.02
+        mult += art.tuning.step * steps
+      }
+      else {
+        let steps = (art.tuning.threshold - hpPercentage) / 0.02
+        mult -= art.tuning.step * steps
+      }
     }
 
     return mult;
@@ -448,14 +604,21 @@ export class Enemy extends Entity {
     var id;
     var totalWeight = 0;
 
-    for (let x in this.def.skills) {
-      totalWeight += this.def.skills[x].weight;
+    if (this.chargedSkill != null) {
+      id = this.chargedSkill;
     }
-    let seed = Math.random() * totalWeight;
-    for (let x in this.def.skills) {
-      seed -= this.def.skills[x].weight
-      if (seed <= 0) {
-        id = this.def.skills[x].id
+    else {
+      for (let x in this.skills) {
+        totalWeight += this.skills[x].weight;
+      }
+      let seed = Math.random() * totalWeight;
+      for (let x in this.skills) {
+        console.log(this.skills)
+        seed -= this.skills[x].weight
+        if (seed <= 0) {
+          id = this.skills[x].id
+          break;
+        }
       }
     }
 
@@ -509,12 +672,18 @@ class Skill {
     return hit;
   }
 
-  // intial casting logic. can put accuracy checks here and other pre-execute logic
+  // intial casting logic. can put pre-execute logic
   cast(user) {}
 
   execute(user, target) {}
 
-  sendMsg(user, target, hit) {
+  sendMsg(user, target, hit, context=null) {
+
+    if (context == "charging") {
+      var str = this.def.special.chargeUpText.format(user.name)
+      combatManager.log.push(str);
+      return;
+    }
 
     if (hit.outcome == "miss")
       var str = (user == combatManager.player) ? utils.format("You missed while using {0}!", hit.skill.name) : utils.format("{0} missed while using {1}!", user.name, hit.skill.name)
@@ -557,18 +726,26 @@ class SkillGenericAttack extends Skill {
   cast(user) {
     var target = this.getTarget(user);
     var hit = combatManager.rollDmg(user, target, this.def, this.postProcessDmg.bind(this));
-    this.execute(user, target, hit)
-    // if (hit.outcome == "hit") {
-    //   this.execute(user, target, hit)
-    // }
-    // else {
-    //   this.sendMsg(user, target, hit);
-    // }
+
+    if (this.def.isChargedSkill) {
+      user.chargedSkill = this.def.id;
+      if (user.charge >= this.def.special.chargeTime) {
+        this.execute(user, target, hit)
+      }
+      else {
+        user.charge += 1;
+        this.sendMsg(user, null, null, "charging")
+      }
+    }
+    else {
+      this.execute(user, target, hit)
+    }
   }
 
   execute(user, target, hit) {
     this.sendMsg(user, target, hit)
     target.receiveDmg(hit)
+    user.resetChargedSkill();
   }
 }
 
@@ -775,6 +952,15 @@ class StatusEffect {
   reduceDuration(turns=1) {
     if (this.infinite)
       return;
+
+    // prevent status decay with chronicle artifact
+    if (this.target.isPlayer) {
+      let art = travel.getArtifact("chronicle")
+      if (this.target.willpower < art.tuning.threshold) {
+        return;
+      }
+    }
+
     this.duration -= turns;
 
     if (this.duration <= 0) {
@@ -798,14 +984,14 @@ class StatusEffect {
 
 class StatusEffectUpgradeable extends StatusEffect {
   constructor(user, target, def, duration=2, infinite=false) {
-    super(user, target, def, duration=2, infinite=false);
+    super(user, target, def, duration, infinite);
     this.save = travel.getMove(this.def.soccerMove)
   }
 }
 
 class StatusEffectFeignInjury extends StatusEffectUpgradeable {
   constructor(user, target, def, duration=2, infinite=false) {
-    super(user, target, def, duration=2, infinite=false)
+    super(user, target, def, duration, infinite)
 
     this.duration += (this.save.level > this.def.special.bonusExtraDurationThreshold) ? 1 : 0 
   }
@@ -813,7 +999,7 @@ class StatusEffectFeignInjury extends StatusEffectUpgradeable {
 
 class StatusEffectPenaltyKick extends StatusEffectUpgradeable {
   constructor(user, target, def, duration=2, infinite=false) {
-    super(user, target, def, duration=2, infinite=false);
+    super(user, target, def, duration, infinite);
 
     this.def.statMods.defense += this.def.special.bonusDefenseReductionPerLevel * (this.save.level - 1)
 
@@ -821,9 +1007,41 @@ class StatusEffectPenaltyKick extends StatusEffectUpgradeable {
   }
 }
 
+class StatusEffectSelfReserve extends StatusEffectUpgradeable {
+  constructor(user, target, def, duration=2, infinite=false) {
+    super(user, target, def, duration, infinite);
+
+    this.hasHealed = false;
+    this.heal = 0.15 + (this.save.level * 0.05)
+
+    if (this.def.isEmpowered) {
+      this.heal += 0.10
+
+      if (this.save.level >= 2) {
+        // cleanse random debuff
+        let stat = this.user.getRandomStatus("negative");
+        this.user.removeStatus(stat)
+      }
+    }
+  }
+
+  onTurnStart() {
+    if (!this.hasHealed) {
+      this.user.heal(this.user.maxHp * this.heal)
+      this.hasHealed = true;
+
+      if (this.save.level >= 3) {
+        this.user.loseSweat(0.25)
+      }
+
+      combatManager.log.push("You come back from your break, having restored {0} health!".format(utils.round(this.user.maxHp * this.heal)))
+    }
+  };
+}
+
 class StatusEffectBottledGlass extends StatusEffect {
   constructor(user, target, def, duration=2, infinite=false) {
-    super(user, target, def, duration=2, infinite=false)
+    super(user, target, def, duration, infinite)
   }
 
   onTurnEnd() {
@@ -832,6 +1050,16 @@ class StatusEffectBottledGlass extends StatusEffect {
 
   onTurnOOC() {
     // this.duration = Math.floor(this.duration, 1)
+  }
+}
+
+class StatusEffectMentalGymnastics extends StatusEffect {
+  constructor(user, target, def, duration=2, infinite=false) {
+    super(user, target, def, duration, infinite)
+
+    let perk = travel.getPerk("mental_gymnastics")
+
+    this.def.statMods.statusResistance -= perk.tuning.amount * perk.level
   }
 }
 
@@ -846,6 +1074,7 @@ export const skillTypeDict = {
   "self_buff_player": SkillGenericSelfBuffPlayer,
   "hex": SkillGenericHex,
   "feign_injury": SkillFeignInjury,
+  // "charged_attack": SkillGenericChargedAttack,
 }
 
 export const statusTypeDict = {
@@ -854,4 +1083,6 @@ export const statusTypeDict = {
   "penaltyKickStatus": StatusEffectPenaltyKick,
   "feignInjuryStatus": StatusEffectFeignInjury,
   "bottled_glass_status": StatusEffectBottledGlass,
+  "self_reserve": StatusEffectSelfReserve,
+  "mental_gymnastics": StatusEffectMentalGymnastics,
 }

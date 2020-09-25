@@ -7,14 +7,16 @@ import "animate.css"
 import { Tooltip } from "./tooltip.js"
 import { ProgressBar } from './progressBar.js';
 import * as utils from "./utilities.js"
+import { ConsumablesPanel, Equips, SoccerMoveButton } from './panels.js';
 
 // render statuses tooltip
 export function renderStatuses(entity) {
     let statuses = []
     for (let x in entity.statuses) {
         let status = entity.statuses[x];
+        let durationText = (status.infinite) ? "(∞)" : ((status.duration > 1) ? "({0} turns)" : "({0} turn)").format(status.duration)
 
-        statuses.push(<p>{utils.format("{0} {1}({2} turns)", status.def.name, ((status.stacks > 1) ? "x" + status.stacks + " " : ""), status.duration)}</p>)
+        statuses.push(<p>{utils.format("{0} {1} {2}", status.def.name, ((status.stacks > 1) ? "x" + status.stacks + " " : ""), durationText)}</p>)
     }
     return statuses;
 }
@@ -28,18 +30,24 @@ export class EnemyPanel extends React.Component {
         var statuses = renderStatuses(enemy)
 
         var header;
+        let bossTitle = (enemy.def.boss) ? "[BOSS] " : ""
         var name = (enemy.statuses.length != 0) ? enemy.name + "*" : enemy.name;
         if (statuses.length == 0) {
-            header = <p>{name}</p>
+            header = <p>{bossTitle + name}</p>
         }
         else {
             header = <Tooltip content={<div>{statuses}</div>}>
-                <p>{name}</p>
+                <p>{bossTitle + name}</p>
             </Tooltip>
         }
 
         return (
             <div>
+                {/* <div style={{position: "absolute"}}> */}
+                    <div className="hitsplat-wrapper">
+                        {this.props.app.hitsplats.enemySplats}
+                    </div>
+                {/* </div> */}
                 <Header text="------------ENEMIES------------"></Header>
                 {header}
                 <ProgressBar percentage={enemy.getHpPercentage()} text={hp} level={enemy.level}></ProgressBar>
@@ -51,18 +59,29 @@ export class EnemyPanel extends React.Component {
 
 export class CombatLog extends React.Component {
     constructor(props) {
-        super(props)
+        super(props);
         this.reference = React.createRef();
     }
 
     render() {
         Game.combatManager.log.componentRef = this.reference;
         var msgs = [];
+        let previousMsgWasSpecial = false;
         for (var x in Game.combatManager.log.msgs) {
-            var element = <div key={x}>
-                <p>{Game.combatManager.log.msgs[x]}</p>
-                <hr></hr>
-            </div>
+            if (Game.combatManager.log.msgs[x] == "[NEW-ROUND]") {
+                var element = <div key={x}><hr className="round-change-hr"></hr></div>
+                previousMsgWasSpecial = true;
+            }
+            else {
+                var element = <div key={x}>
+                    <p>{Game.combatManager.log.msgs[x]}</p>
+                </div>
+                previousMsgWasSpecial = false
+            }
+
+            // if (previousMsgWasSpecial) {
+            //     msgs.push(<hr key={Math.random()}></hr>)
+            // }
             msgs.push(element);
         }
         // this.scroll();
@@ -75,13 +94,27 @@ export class CombatLog extends React.Component {
     }
 }
 
+export function Hitsplat(props) {
+    let types = {
+        "healing": "text-healing",
+        "default": "text-default",
+        "religious": "text-religious",
+        "dot": "text-dot",
+    }
+    return (
+        <div className={"hitsplat animate__animated animate__fadeOutUp "}>
+            <p className={types[props.type]}>{props.value}</p>
+        </div>
+    )
+}
+
 export class PlayerPanel extends React.Component {
     render() {
         let turnText = (Game.combatManager.isPlayerTurn) ? <p className="your-turn animate__animated animate__bounce">{"Your turn!"}</p> : <p className="your-turn"></p>
         var player = Game.combatManager.player;
 
         let weapon = Game.travel.getCurrent("weapon")
-        var weaponButton = (weapon != null) ? <Button text={weapon.name.toUpperCase()} func={() => player.useWeapon()}></Button> : <Button text="NO WEAPON EQUIPPED" disabled={true}></Button>
+        var weaponButton = (weapon != null) ? <Button text={weapon.name.toUpperCase()} disabled={Game.combatManager.player.hasFlag("disarmed")} func={() => player.useWeapon()}></Button> : <Button text="NO WEAPON EQUIPPED" disabled={true}></Button>
 
         // render statuses tooltip
         var statuses = renderStatuses(player)
@@ -102,11 +135,12 @@ export class PlayerPanel extends React.Component {
         let moveButtons = [];
         for (let x in Game.travel.state.loadout.moves) {
             let id = Game.travel.state.loadout.moves[x]
+            let disabled = (!Game.combatManager.isPlayerTurn || Game.combatManager.player.sweat >= 1)
             if (id != null) {
                 let move = Game.travel.getMove(id);
                 let glowing = Game.combatManager.player.willpower >= Game.combatManager.skills[move.id].def.willpower.threshold
                 moveButtons.push(
-                    <Button text={move.name.toUpperCase()} func={() => Game.combatManager.player.useMove(x)} disabled={!Game.combatManager.isPlayerTurn} glowing={glowing} key={x}/>
+                    <SoccerMoveButton data={move} text={move.name.toUpperCase()} func={() => Game.combatManager.player.useMove(x)} disabled={disabled} glowing={glowing.toString()} key={x} moveIndex={x}/>
                 )
             }
             else {
@@ -116,16 +150,32 @@ export class PlayerPanel extends React.Component {
             }
         }
 
+        let bottomButtons = null;
+        if (this.props.app.state.hasConsumablesMenuOpen) {
+            bottomButtons = <ConsumablesPanel app={this.props.app}/>
+        }
+        else {
+            let text = (Game.travel.hasAnyConsumables) ? "ITEMS" : "NO ITEMS"
+            let disabled = (!Game.travel.hasAnyConsumables)
+            bottomButtons = <div>
+                {weaponButton}
+                {moveButtons}
+                <Button text={text} func={() => this.props.app.setState({hasConsumablesMenuOpen: true,})} disabled={disabled}></Button>
+            </div>
+        }
+
         return (
             <div>
+                <div className="hitsplat-wrapper">
+                    {this.props.app.hitsplats.playerSplats}
+                </div>
                 {header}
                 {turnText}
                 <ProgressBar hasXpBar={false} percentage={Game.combatManager.player.getHpPercentage()} level={Game.levelling.state.level} text={`${Game.combatManager.player.hp}/${Game.combatManager.player.maxHp} HP`}></ProgressBar>
-                <div>
-                    {weaponButton}
-                    {moveButtons}
-                    <Button text={"temp"} func={() => this.props.app.openPanel("items", "right")}></Button>
-                </div>
+
+                {bottomButtons}
+
+                <Equips/>
             </div>
         )
     }

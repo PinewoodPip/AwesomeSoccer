@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="106.90781mm"
+   height="106.90797mm"
+   viewBox="0 0 106.90781 106.90797"
+   version="1.1"
+   id="svg2909"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="cool_orb.svg">
+  <defs
+     id="defs2903" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="154.12118"
+     inkscape:cy="185.81851"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer3"
+     showgrid="false"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:object-paths="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-global="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata2906">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Layer 2"
+     style="display:inline"
+     transform="translate(-10.690781,-47.904801)">
+    <path
+       inkscape:connector-curvature="0"
+       style="opacity:1;vector-effect:none;fill:#7fb8f5;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.50900006;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       d="M 117.59859,101.3587 A 53.453903,53.453903 0 0 1 64.144684,154.81261 53.453903,53.453903 0 0 1 10.690781,101.3587 53.453903,53.453903 0 0 1 64.144684,47.904801 53.453903,53.453903 0 0 1 117.59859,101.3587 Z"
+       id="path3454" />
+    <circle
+       style="opacity:1;vector-effect:none;fill:#a7cdf6;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.50900006;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       id="path3456"
+       cx="46.113091"
+       cy="77.395828"
+       r="11.528275" />
+    <path
+       style="display:inline;opacity:1;vector-effect:none;fill:#2d8aef;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:13.26236248;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       d="M 400.57812,257.37109 A 219.49305,225.04863 0 0 1 410.84375,324.56445 219.49305,225.04863 0 0 1 191.34961,549.61328 219.49305,225.04863 0 0 1 106.25586,531.99219 202.0305,202.0305 0 0 0 242.4375,585.11914 202.0305,202.0305 0 0 0 444.4668,383.08789 202.0305,202.0305 0 0 0 400.57812,257.37109 Z"
+       transform="scale(0.26458333)"
+       id="path3454-3"
+       inkscape:connector-curvature="0" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-10.690781,-47.904801)" />
+</svg>

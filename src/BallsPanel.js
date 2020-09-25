@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Game from "./BallGame.js"
-import { Button, Divisor } from "./genericElements.js"
+import { Button, Divisor, Icon } from "./genericElements.js"
 import * as data from "./generalData.js"
 import { Tooltip } from "./tooltip.js"
 
@@ -17,8 +17,7 @@ export class BallsPanel extends React.Component {
     var elements = [];
 
     for (var x in data.balls) {
-      var ball = data.balls[x];
-      var element = <BallItem key={x} data={ball} locked={!Game.ballManager.state.unlocked.includes(x)}></BallItem>
+      var element = <BallItem key={x} data={Game.ballManager.getBall(x)} locked={!Game.ballManager.state.unlocked.includes(x)}></BallItem>
       elements.push(element)
     }
 
@@ -36,7 +35,7 @@ export class BallsPanel extends React.Component {
         <div className="balls-container">
           {elements}
         </div>
-        <Divisor></Divisor>
+        <Divisor height={"40px"}/>
         <Tooltip content={lootboxTooltip}>
           <Button text="LOOTBOX" func={() => Game.ballManager.rollLootbox()}></Button>
         </Tooltip>
@@ -48,10 +47,14 @@ export class BallsPanel extends React.Component {
 
 export class BallItem extends React.Component {
   render() {
+    let tooltip = (this.props.data.unlocked) ? <div className="generic-tooltip">
+      <p>{this.props.data.name}</p>
+      <p>{this.props.data.description}</p>
+    </div> : <p>???</p>
     return (
-      <div className="ball-icon" onClick={() => Game.ballManager.set(this.props.data.id)}>
-        <img className={this.props.locked ? "locked" : ""} src={this.props.data.img}></img>
-      </div>
+      <Tooltip content={tooltip}>
+        <Icon data={this.props.data} smooth="true" func={() => Game.ballManager.set(this.props.data.id)}/>
+      </Tooltip>
     )
   }
 }

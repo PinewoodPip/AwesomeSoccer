@@ -1,14 +1,21 @@
 import React from 'react';
-import * as Utils from "./Utils.js"
 import { strings } from "./strings.js"
 import * as data from "./generalData.js"
+import { FileButton } from "./genericElements.js"
 import { Entity, Player, Enemy, skillTypeDict, statusTypeDict } from "./combat.js"
 import * as utils from "./utilities.js"
 import _ from "lodash"
+import { CombatManager } from "./combatManager.js"
+import { ShoeManager } from "./shoes.js"
+import { Hitsplat, PlayerPanel } from './combatComponents.js';
+import { TravelManager } from "./travel.js"
+// import { Main } from "./main.js"
 String.prototype.format = function () { // by gpvos from stackoverflow
   var args = arguments;
   return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
 };
+
+export var IGNORE_SAVE = false;
 
 function importAll(r) {
   let images = {};
@@ -24,6 +31,7 @@ const recoloredBadges = {
   4: importAll(require.context('./Assets/Icons/Badges/recolors/5-nice-green', false, /\.(gif|jpe?g|svg|png)$/)),
   5: importAll(require.context('./Assets/Icons/Badges/recolors/6-lemon-calid', false, /\.(gif|jpe?g|svg|png)$/)),
   6: importAll(require.context('./Assets/Icons/Badges/recolors/7-wooden', false, /\.(gif|jpe?g|svg|png)$/)),
+  7: importAll(require.context('./Assets/Icons/Badges/recolors/8-warm-desire', false, /\.(gif|jpe?g|svg|png)$/)),
   8: importAll(require.context('./Assets/Icons/Badges/recolors/9-odd-desire', false, /\.(gif|jpe?g|svg|png)$/)),
   9: importAll(require.context('./Assets/Icons/Badges/recolors/10-nightly', false, /\.(gif|jpe?g|svg|png)$/)),
 }
@@ -32,14 +40,19 @@ class BallGame {
   state = {
     streak: 0,
     streakType: "none",
+    brokenLeg: false,
   }
+
+  d20roll = null;
 
   getResultText() {
     if (this.state.streakType == "win")
       return "You win!"
     else if (this.state.streakType == "lose")
       return "You lost!"
-    return "Click the ball to start playing!" // todo welcome back
+    else if (stats.state.matches > 0)
+      return "Welcome back!"
+    return "Click the ball to start playing!"
   }
 
   getLegendaryStreakText() {
@@ -69,37 +82,67 @@ class BallGame {
       return;
       
     var roll = Math.round(Math.random());
-    var legRoll = Utils.rollCheck(30) // temp value
+    var legRoll = (this.state.brokenLeg) ? false : utils.checkRoll(shoes.legBreakChance) // can't break leg twice in a row
     
     var result = (roll == 1) ? "win" : "lose";
 
-    stats.playedMatch();
-    if (result == "win")
-      stats.state.wins++;
-    else if (result == "lose")
-      stats.state.losses++;
-
-    // todo xp
-
-    if (this.state.streakType == result) {
-      this.state.streak++;
+    if (legRoll) {
+      this.state.brokenLeg = true;
+      stats.state.legBreaks++;
     }
     else {
-      this.state.streakType = result;
-      this.state.streak = 1;
+      this.state.brokenLeg = false;
+      stats.playedMatch();
+      if (result == "win")
+        stats.state.wins++;
+      else if (result == "lose")
+        stats.state.losses++;
+
+      if (this.state.streakType == result) {
+        this.state.streak++;
+      }
+      else {
+        this.state.streakType = result;
+        this.state.streak = 1;
+      }
+
+      if (this.state.streak > stats.state.bestStreaks[result])
+        stats.state.bestStreaks[result] = this.state.streak;
+
+      if (this.state.streak >= 6) {
+        stats.state.legs++;
+        stats.state.totalLegs++;
+      }
+
+      // special ball effects
+      switch (ballManager.state.equipped) {
+        case "d20": {
+          this.d20roll = utils.randomFromRange(1, 20)
+          break;
+        }
+        case "cookie": {
+          combatManager.player.heal(1)
+          break;
+        }
+        case "signed": {
+          if (combatManager.player.willpower < 0.3)
+            combatManager.player.gainWillpower(0.05, null, null, false);
+          break;
+        }
+        default: {
+          this.d20roll = null;
+          break;
+        }
+      }
+
+      levelling.didRoll();
+
+      // cast combat skill
+      if (combatManager.inCombat && combatManager.isPlayerTurn && !combatManager.player.isDead)
+        combatManager.player.cast("player_kick_ball");
     }
 
-    if (this.state.streak > stats.state.bestStreaks[result])
-      stats.state.bestStreaks[result] = this.state.streak;
-
-    if (this.state.streak >= 6) {
-      this.state.legs++;
-      this.state.totalLegs++;
-    }
-
-    levelling.didRoll();
-    if (combatManager.inCombat && combatManager.isPlayerTurn)
-      combatManager.player.cast("player_kick_ball");
+    
     main.render();
   }
 }
@@ -119,19 +162,28 @@ class Stats {
     dailyMatches: 0,
     mostDailyMatches: 0,
     mostMatchesDate: null,
+    lastPlayed: null,
     lootboxesOpened: 0,
   }
 
-  textDict = {
-    "matches": "Matches Played: {0}",
-    "wins": "Matches Won: {0}",
-    "losses": "Matches Lost: {0}",
-    "legs": "Legendary Points: {0}",
-    "total_legs": "Total LP: {0}",
-    "best_win_streak": "Best Win Streak: {0}",
-    "best_lose_streak": "Best Lose Streak: {0}",
-    "leg_breaks": "Legs Broken: {0}",
-    "lootboxes_opened": "Lootboxes Opened: {0}",
+  getDailyMatchesTooltip() {
+    let record = (this.state.mostMatchesDate != null) ? <p>{"Most matches in a day: {0} on {1}".format(this.state.mostDailyMatches, this.state.mostMatchesDate)}</p> : null;
+    return (
+      <div className="generic-tooltip">
+        <p>{"Matches played today: {0}".format(this.state.dailyMatches)}</p>
+        {record}
+        <p></p>
+        <p>{"Legs broken: {0}".format(this.state.legBreaks)}</p>
+      </div>
+    )
+  }
+
+  // update daily records
+  updateDay() {
+    if (this.state.lastPlayed != new Date().toLocaleDateString()) {
+      this.state.dailyMatches = 0;
+      this.state.lastPlayed = new Date().toLocaleDateString();
+    }
   }
 
   addLegs(amount) {
@@ -154,7 +206,7 @@ class Stats {
     if (this.state.matches == 0)
       return templateString.format(0);
     
-    var winrate = (config.preferLosses) ? (this.state.matches-this.state.wins / this.state.matches)*100 : (this.state.wins / this.state.matches)*100
+    var winrate = (config.preferLosses) ? ((this.state.matches-this.state.wins) / this.state.matches)*100 : (this.state.wins / this.state.matches)*100
 
     winrate = +winrate.toFixed(config.winrateRounding);
 
@@ -163,7 +215,7 @@ class Stats {
 
   playedMatch() {
     this.state.matches++;
-    this.state.matchesToday++;
+    this.state.dailyMatches++;
 
     if (this.state.dailyMatches > this.state.mostDailyMatches) {
       this.state.mostDailyMatches = this.state.dailyMatches;
@@ -179,8 +231,9 @@ class BallManager {
   }
 
   set(id) {
+    ballGame.d20roll = null;
     if (this.state.unlocked.includes(id)) {
-      main.app.setState({ball: id})
+      this.state.equipped = id;
     }
     else {
       main.addPopup({
@@ -192,11 +245,33 @@ class BallManager {
         buttons: [data.popupButtons.close]
       })
     }
+
+    main.render()
+  }
+
+  getBall(id) {
+    let info = _.cloneDeep(data.balls[id])
+    info.unlocked = this.state.unlocked.includes(id)
+    return info;
   }
 
   unlock(ball) {
-    if (!this.state.unlocked.includes(ball.id))
+    if (!this.state.unlocked.includes(ball.id)) {
       this.state.unlocked.push(ball.id);
+
+      // killfreak temple unlock condition
+      if (ball.id == "meridia") {
+        travel.unlock("area", "temple")
+        main.addPopup({
+          title: "A NEW HAND TOUCHES THE BEACON",
+          description: <div>
+            <p>"Listen. Hear me and obey. A foul darkness has seeped into my temple. A darkness that you will destroy."</p>
+            <p>(You can now travel to the Killfreak Temple)</p>
+          </div>,
+          buttons: [data.popupButtons.excitedClose]
+        })
+      }
+    }
   }
 
   rollLootbox() {
@@ -221,11 +296,27 @@ class BallManager {
         }
       }
 
-      alert("temp msg unlocked " + chosenBall.name)
+      let unlockString = (this.getBall(chosenBall.id).unlocked) ? "You unlocked the {0}! ...Again!" : "You unlocked the {0}!"
+      let title = (this.getBall(chosenBall.id).unlocked) ? "NEW BALL UNLOCKED! (NOT REALLY)" : "NEW BALL UNLOCKED!"
+
+      main.addPopup({
+        title: "NEW BALL UNLOCKED!",
+        description: <div>
+          <p>{unlockString.format(chosenBall.name)}</p>
+        </div>,
+        buttons: [data.popupButtons.excitedClose]
+      })
+
       this.unlock(chosenBall);
     }
     else {
-      window.alert("Not enough lp. temp msg")
+      main.addPopup({
+        title: "NOT ENOUGH LP!",
+        description: <div>
+          <p>{"Come back when you're a little ummm... Richer!"}</p>
+        </div>,
+        buttons: [data.popupButtons.close]
+      })
     }
   }
 }
@@ -241,6 +332,10 @@ class ColorManager {
         return false;
     }
     return true;
+  }
+
+  get hasAnyColorUnlocked() {
+    return this.state.unlocked.length > 1;
   }
 
   unlockRandom() {
@@ -288,28 +383,199 @@ class ColorManager {
   }
 }
 
-class Main { // we use this to force React.js to render from game js
+export class Main { // we use this to force React.js to render from game js
   app = null;
+  popupQueue = [];
+
+  getSave() {
+    travel.state.savedHp = combatManager.player.hp
+    let save = {
+      ballGame: _.cloneDeep(ballGame.state),
+      stats: _.cloneDeep(stats.state),
+      colors: _.cloneDeep(colorManager.state),
+      balls: _.cloneDeep(ballManager.state),
+      travel: _.cloneDeep(travel.state),
+      levelling: _.cloneDeep(levelling.state),
+      shoes: _.cloneDeep(shoes.state),
+      config: _.cloneDeep(config),
+      meta: _.cloneDeep(saveMetaData),
+      // combat: _.cloneDeep(combatManager.state),
+    }
+    return save;
+  }
+
+  save() {
+    let save = this.getSave();
+
+    utils.save(save, "save")
+  }
+
+  resetSave() {
+    if (window.confirm("Are you sure you want to wipe your save?")) {
+      IGNORE_SAVE = true;
+      window.localStorage.setItem("save", null);
+      window.location.reload()
+    }
+  }
+
+  importSave(save) {
+    try {
+      save = JSON.parse(save)
+    }
+    catch {
+      window.alert("Invalid save!")
+      return;
+    }
+    
+    this.loadSave(save)
+
+    main.closePopup();
+  }
+
+  exportSave() {
+    let save = this.getSave()
+    let json = JSON.stringify(save, null, 2);
+    console.log(json)
+
+    var FileSaver = require('file-saver');
+    var blob = new Blob([json], {type: "text/plain;charset=utf-8"});
+    FileSaver.saveAs(blob, "awesome_soccer_save.json");
+
+    main.closePopup();
+  }
+
+  deepExtend(base, override) {
+    let newObject = _.cloneDeep(base);
+
+    for (let x in override) {
+      let thing = override[x]
+      if (newObject[x] == null)
+        newObject[x] = override[x]
+      else if (typeof thing == "object") {
+        newObject[x] = this.deepExtend(newObject[x], thing)
+      }
+      else {
+        if (newObject != undefined)
+          newObject[x] = override[x];
+      }
+    }
+    // console.log(newObject)
+    return newObject;
+  }
+
+  loadSave() {
+    let save = utils.load("save")
+
+    try {
+      console.log(save.meta)
+    }
+    catch {
+      console.log("error loading save")
+      return;
+    }
+
+    if (save != null && save != undefined) {
+      if (save.meta.protocol < saveMetaData.protocol) {
+        main.addPopup({
+          title: "OBSOLETE SAVE",
+          description: "Your save was wiped due to changes in the save format. My deepest condolences.",
+          buttons: [data.popupButtons.sadClose],
+        })
+      }
+      else {
+        // ballGame.state = this.deepExtend(ballGame.state, save.ballGame)
+        stats.state = this.deepExtend(stats.state, save.stats)
+        colorManager.state = this.deepExtend(colorManager.state, save.colors)
+        ballManager.state = this.deepExtend(ballManager.state, save.balls)
+        travel.state = this.deepExtend(travel.state, save.travel)
+        levelling.state = this.deepExtend(levelling.state, save.levelling)
+        shoes.state = this.deepExtend(shoes.state, save.shoes)
+        config = save.config;
+        saveMetaData = save.meta;
+
+        combatManager.player.scale(levelling.state.level)
+        combatManager.player.hp = travel.state.savedHp;
+
+        stats.updateDay()
+      }
+    }
+  }
+
+  beforeUnload() {
+    if (!IGNORE_SAVE)
+      this.save();
+  }
+
+  generateHitsplat(hit) {
+    let elements = [];
+
+    if (hit.dmg != 0 && hit.dmg != undefined) {
+      elements.push({value: hit.dmg, type: hit.dmgType})
+    }
+
+    if (utils.noneCheck(hit.heal)) {
+      elements.push({value: hit.heal, type: "healing"})
+    }
+
+    for (let x in elements) {
+      let element = elements[x];
+      this.app.hitsplats.queued.push({
+        duration: 1000,
+        hit: hit,
+        element: <Hitsplat key={this.app.hitsplats.queued.length} value={element.value} type={element.type}/>
+      })
+    }
+  }
+
+  openSaveMenu() {
+    this.addPopup({
+      title: "IMPORT/EXPORT SAVES",
+      description: "How may this menu serve you?",
+      buttons: [
+        <FileButton text="IMPORT" func={(f) => {this.importSave(f)}}/>,
+        {text: "EXPORT", func: () => {this.exportSave()}},
+        {text: "RESET", func: () => {this.resetSave()}},
+        {text: "I'M JUST LOOKING", func: () => {}},
+      ]
+    })
+  }
 
   addPopup(popup) {
-    const newQueue = this.app.state.popupQueue.slice();
+    const newQueue = this.popupQueue.slice();
+
+    // randomized button text
+    for (let x in popup.buttons) {
+      if (!React.isValidElement(popup.buttons[x])) {
+        if (typeof popup.buttons[x].text != "string") {
+          popup.buttons[x].text = _.sample(popup.buttons[x].text)
+        }
+      }
+    }
+
+    // randomized desc
+    if (typeof popup.description != "string" && !React.isValidElement(popup.description)) {
+      popup.description = _.sample(popup.description)
+    }
+    
     newQueue.push(popup)
-    this.app.setState({
-      popupQueue: newQueue,
-    })
+    this.popupQueue = newQueue;
+    this.render();
   }
 
   closePopup() {
-    const newQueue = this.app.state.popupQueue.slice();
+    const newQueue = this.popupQueue.slice();
     newQueue.shift()
-    this.app.setState({
-      popupQueue: newQueue,
-    })
+    this.popupQueue = newQueue;
+    this.render();
   }
 
   render() {
-    if (this.app != null)
-      this.app.forceUpdate();
+    if (this.app != null) {
+      // this.app.forceUpdate();
+      this.app.setState({
+        popupQueue: this.popupQueue,
+      })
+    }
   }
 }
 
@@ -318,13 +584,11 @@ class Levelling {
     level: 1,
     xp: 0,
     totalXp: 0,
-
   }
 
-  lpMilestones = [5, 10, 13, 17, 20];
-  gmgMilestones = [7, 9, 11, 13];
+  lpMilestones = [7, 10, 13, 17, 20];
+  gmgMilestones = [6, 9, 11, 13, 15, 17, 19, 21];
   baseXpGoal = 20;
-  goal = this.baseXpGoal;
   colorOrder = ["",
                 "2-dark-blue",
                 "3-teal",
@@ -344,6 +608,8 @@ class Levelling {
           '8-star.svg',
           'pinewood.svg'];
 
+  get goal() {return this.calculateGoal()}
+
   didRoll() {
     if (!combatManager.inCombat) {
       var xp = 2;
@@ -354,6 +620,7 @@ class Levelling {
   }
   
   gainXp(amount) {
+    amount = utils.round(amount, 0)
     this.state.xp += amount;
     this.state.totalXp += amount;
 
@@ -365,11 +632,23 @@ class Levelling {
   }
 
   checkLevelUp() {
-    if (this.state.xp > this.goal) {
-      this.state.level += 1;
+    while (this.state.xp >= this.goal) {
       this.state.xp -= this.goal;
-      this.goal = this.calculateGoal();
+      this.state.level += 1;
       combatManager.player.scale(this.state.level);
+
+      if (this.state.level == 5) {
+        main.addPopup({
+          title: "TRAVEL UNLOCKED",
+          description: <div>
+            <p>You feel like you're getting the hang of this, but you know you could be so much more.</p>
+            <p>You seek more intense training, trials, and glory. Such desires can only be fulfilled outside your backyard.</p>
+            <p>(You can now use the travel button.)</p>
+            <p></p>
+          </div>,
+          buttons: [data.popupButtons.excitedClose]
+        })
+      }
       
       this.checkMilestones();
     }
@@ -377,6 +656,7 @@ class Levelling {
 
   checkMilestones() {
     let desc = "";
+    let hasJustUnlockedGym = false;
 
     if (this.lpMilestones.includes(this.state.level)) {
       stats.addLegs(1);
@@ -384,11 +664,14 @@ class Levelling {
     }
 
     if (this.gmgMilestones.includes(this.state.level)) {
+      if (!travel.canUseGym) {
+        hasJustUnlockedGym = true;
+      }
       travel.state.giftcards++;
       desc += "You have gained a Gym Membership Giftcard!"
     }
 
-    if (this.state.level % 5 == 0) {
+    if (this.state.level % 5 == 0 && this.state.level > 5) {
       if (!colorManager.collectionCompleted) {
         let color = colorManager.unlockRandom();
         desc += utils.format("You have unlocked the '{0}' background color!", color.name)
@@ -404,10 +687,20 @@ class Levelling {
         ]
       })
     }
+
+    if (hasJustUnlockedGym) {
+      main.addPopup({
+        title: "GYM UNLOCKED",
+        description: "You've obtained a Gym Membership Giftcard! You can use these at the Gym to get professional training in all things soccer-related.",
+        buttons: [data.popupButtons.excitedClose]
+      })
+    }
   }
 
-  calculateGoal() {
-    return Math.floor(this.baseXpGoal + (Math.pow(((this.state.level-1)*1.5), 1.5)))
+  calculateGoal(level) {
+    if (level == null)
+      level = this.state.level;
+    return Math.floor(this.baseXpGoal + (Math.pow(((level-1)*1.5), 1.5)))
   }
 
   getBadgeForLevel(level) {
@@ -429,722 +722,24 @@ class Levelling {
   }
 }
 
-export class TravelManager {
-  state = {
-    unlocks: {
-      areas: ["testing", "street"],
-      weapons: [],
-      artifacts: [],
-      gym: {
-        moves: {
-          penalty_kick: {
-            level: 0,
-          },
-          feign_injury: {
-            level: 0,
-          }
-        },
-        perks: {
-          legendary_strikes: {
-            level: 0,
-          },
-          flow: {
-            level: 0,
-          },
-          art_of_the_steal: {
-            level: 0,
-          }
-        }
-      }
-    },
-    giftcards: 0,
-    lootingDryStreak: 0,
-    areaProgress: {},
-    loadout: {
-      weapon: null,
-      moves: [
-        null,
-        null,
-      ],
-      artifacts: [
-        null,
-        null,
-      ]
-    }
-  }
-
-  unlockLevel = 5;
-  lootingDryStreakMult = 0.05;
-
-  get canTravel() {
-    return (levelling.state.level > this.unlockLevel)
-  }
-
-  test() {
-    console.log("test")
-  }
-
-  buyPerk(id) {
-    let perk = this.getPerk(id);
-    let cost = perk.prices[perk.level];
-
-    function test() {
-      console.log("test")
-    }
-
-    if (perk.level >= perk.maxLevel) {
-      main.addPopup({
-        title: "IMPOSSIBLE",
-        description: utils.format("{0} is at maximum level. Cannot upgrade further.", perk.name),
-        buttons: [
-          data.popupButtons.close,
-        ]
-      })
-    }
-    else if (this.state.giftcards >= cost) {
-      main.addPopup({
-        title: perk.name,
-        description: "Are you sure you want to buy/upgrade {0}? The gym has a strict no-refund policy.".format(perk.name),
-        buttons: [
-          {text: "BUY", func: () => {console.log("t"); this.state.unlocks.gym.perks[id].level++; this.state.giftcards -= cost}},
-          data.popupButtons.cancel,
-        ]
-      })
-    }
-    else {
-      main.addPopup({
-        title: "IMPOSSIBLE",
-        description: utils.format("Not enough gym membership gift cards to buy/upgrade {0}!", perk.name),
-        buttons: [
-          data.popupButtons.close,
-        ]
-      })
-    }
-  }
-
-  buyMove(id) {
-    let move = this.getMove(id);
-
-    if (move.level == move.maxLevel) {
-      main.addPopup({
-        title: "IMPOSSIBLE",
-        description: utils.format("{0} is at maximum level. Cannot upgrade further.", move.name),
-        buttons: [
-          data.popupButtons.close,
-        ]
-      })
-    }
-    else if (this.state.giftcards >= move.nextLevelCost) {
-      main.addPopup({
-        title: move.name,
-        description: "Are you sure you want to buy/upgrade {0}? The gym has a strict no-refund policy.".format(move.name),
-        buttons: [
-          {text: "BUY", func: (() => {
-            if (move.level == 0) {
-              main.addPopup({
-                title: "MOVE ACQUIRED",
-                description: utils.format("You have learnt the art of {0}! You can equip it from your wardrobe.", move.name),
-                buttons: [
-                  data.popupButtons.excitedClose,
-                ]
-              })
-            }
-            this.state.unlocks.gym.moves[id].level++;
-            this.state.giftcards -= move.nextLevelCost
-          }).bind(this)
-          }, // hope this deducts the right amount
-          data.popupButtons.cancel,
-        ]
-      })
-    }
-    else {
-      main.addPopup({
-        title: "IMPOSSIBLE",
-        description: utils.format("Not enough gym membership gift cards to buy/upgrade {0}!", move.name),
-        buttons: [
-          data.popupButtons.close,
-        ]
-      })
-    }
-  }
-
-  getPerk(id) {
-    var perk = _.cloneDeep(data.perks[id])
-    var perkData = this.state.unlocks.gym.perks[id];
-    perk.unlocked = (perkData.level > 0);
-    perk.level = perkData.level;
-    perk.nextLevelCost = (perk.level < perk.maxLevel) ? perk.prices[perk.level] : null;
-    return perk;
-  }
-
-  getMove(id) {
-    let move = _.cloneDeep(data.moves[id])
-    let save = this.state.unlocks.gym.moves[id]
-    move.level = save.level;
-    move.unlocked = (save.level > 0)
-    move.maxLevel = move.prices.length;
-    move.nextLevelCost = (move.level < move.maxLevel) ? move.prices[move.level] : null;
-
-    return move;
-  }
-  
-  getCurrent(thing) {
-    switch(thing) {
-      case "weapon": {
-        let current = this.state.loadout.weapon;
-        if (current != null)
-          return this.getWeapon(current)
-        return null;
-      }
-      // todo
-    }
-  }
-
-  getWeapon(id) {
-    let wep = _.cloneDeep(data.weapons[id])
-    wep.unlocked = this.state.unlocks.weapons.includes(id)
-
-    return wep;
-  }
-
-  getArtifact(id) {
-    let art = _.cloneDeep(data.artifacts[id])
-    art.unlocked = this.state.unlocks.artifacts.includes(id)
-
-    return art;
-  }
-
-  // // unused?
-  // getCurrent(thing) {
-  //   console.log("DEPRECATED CALL - GETCURRENT")
-  //   switch(thing) {
-  //     case "weapon": {
-  //       if (this.state.loadout.weapon != null) {
-  //         let info = _.cloneDeep(data.weapons[this.state.loadout.weapon])
-  //         return info;
-  //       }
-  //       else
-  //         return null;
-  //     }
-  //   }
-  // }
-
-  equip(type, id, slot) {
-    switch (type) {
-      case "artifact": {
-        if (this.getArtifact(id).unlocked)
-         this.state.loadout.artifacts[slot] = id;
-        break;
-      };
-      case "weapon": {
-        if (this.getWeapon(id).unlocked)
-          this.state.loadout.weapon = id;
-        break;
-      };
-      case "move": {
-        if (this.getMove(id).unlocked)
-          this.state.loadout.moves[slot] = id;
-        break;
-      };
-    }
-  }
-
-  unequip(type) {
-    switch(type) {
-      case "weapons": {
-        this.state.loadout.weapon = null;
-        break;
-      }
-      case "artifacts": {
-        for (let x in this.state.loadout.artifacts) {
-          this.state.loadout.artifacts[x] = null;
-          break;
-        }
-      }
-      case "moves": {
-        for (let x in this.state.loadout.moves) {
-          this.state.loadout.moves[x] = null;
-          break;
-        }
-      }
-    }
-    main.render();
-  }
-
-  unlock(type, id) {
-    switch(type) {
-      case "artifact": {
-        if (!this.state.unlocks.artifacts.includes(id)) {
-          this.state.unlocks.artifacts.push(id)
-        }
-        break;
-      };
-      case "weapon": {
-        if (!this.state.unlocks.weapons.includes(id)) {
-          this.state.unlocks.weapons.push(id)
-        }
-        break;
-      };
-    }
-  }
-
-  travelTo(area) {
-    if (this.state.unlocks.areas.includes(area.id)) {
-      combatManager.setupFight(area);
-    }
-  }
-
-  hasArtifact(id) {
-    return this.state.loadout.artifacts.includes(id);
-  }
-
-  rollLoot(enemy) {
-    var unlocks = [];
-    for (let x in enemy.def.drops) {
-      var drop = enemy.def.drops[x];
-      var chance = drop.chance + (this.state.lootingDryStreak * this.lootingDryStreakMult);
-
-      // boost consumable drops if player has perk
-      if (drop.type == "item") {
-        var perk = travel.getPerk("art_of_the_steal");
-
-        chance += perk.tuning.boost * perk.level;
-      }
-
-      if (utils.checkRoll(chance)) {
-        unlocks.push(drop)
-      }
-    }
-
-    if (unlocks.length == 0) {
-      this.state.lootingDryStreak++;
-      return "";
-    }
-
-    for (let x in unlocks) {
-      var unlock = unlocks[x];
-      var str = "";
-
-      switch(unlock.type) {
-        case "artifact": {
-          if (!travel.state.unlocks.artifacts.includes(unlock.id)) {
-            travel.state.unlocks.artifacts.push(unlock.id)
-            str += "You got " + unlock.id
-          }
-        }
-        case "weapon": {
-          if (!travel.state.unlocks.weapons.includes(unlock.id)) {
-            travel.state.unlocks.weapons.push(unlock.id)
-            str += "You got " + unlock.id
-          }
-        }
-      }
-    }
-    return str;
-  }
+export var config = {
+  preferLosses: false,
+  hideLogo: false,
+  winrateRounding: 2,
+  skipTutorials: false,
 }
-
-export class CombatManager {
-  constructor() {
-    this.skills = {};
-    this.statuses = {};
-    this.player = new Player(data.entities["player"]);
-    this.round = 0;
-    this.isPlayerTurn = false;
-    this.inCombat = false;
-    this.log = new Log();
-
-    for (let x in data.skills) {
-      var def = data.skills[x]
-      def.id = x; // ensure we do not have misspelled ids
-      var skill = new skillTypeDict[def.behaviour](def);
-      this.skills[def.id] = skill;
-    }
-
-    // for (let x in data.statuses) {
-    //   var def = data.statuses[x];
-    //   var status = new statusTypeDict[def.behaviour](def)
-    //   this.statuses[def.id] = status
-    // }
-
-    setInterval(this.oocTick, this.OOC_TIMER)
-
-  }
-
-  area;
-
-  OOC_TIMER = 1000;
-  OOCHealing = 1; // base healing is 1 per sec
-  OOCWillpowerDrain = 0.02;
-  OOC_SWEAT_DRAIN = 0.02;
-  TURN_DELAY = 1000;
-
-  oocTick() {
-    if (!combatManager.inCombat) {
-      let player = combatManager.player;
-      let heal = combatManager.OOCHealing;
-
-      if (travel.hasArtifact("engraved_ring"))
-        heal += combatManager.player.maxHp * 0.04;
-        
-      combatManager.player.heal(heal);
-
-      combatManager.player.loseWillpower(combatManager.OOCWillpowerDrain)
-      combatManager.player.loseSweat(combatManager.OOC_SWEAT_DRAIN)
-
-      for (let x in player.statuses) {
-        player.statuses[x].onTurnOOC();
-      }
-
-      main.render();
-    }
-  }
-
-  setupFight(area) {
-    var totalWeight = 0;
-    for (let x in area.enemies) {
-      totalWeight += area.enemies[x].weight
-    }
-    var seed = totalWeight * Math.random();
-    var enemyId = null;
-    for (let x in area.enemies) {
-      seed -= area.enemies[x].weight
-      if (seed <= 0) {
-        var enemyId = area.enemies[x].id;
-        this.progressReward = area.enemies[x].progressReward;
-      }
-    }
-
-    var enemyDef = data.entities[enemyId];
-    var playerLevel = levelling.state.level;
-    var enemyLevel = utils.randomFromRange(Math.max(area.levelRange.min, playerLevel - 3), Math.min(area.levelRange.max, playerLevel + 2))
-    this.enemy = new Enemy(enemyDef, enemyLevel)
-    this.inCombat = true;
-    this.round = 1;
-    this.isPlayerTurn = true;
-    this.area = area;
-
-    main.app.startCombat();
-    this.tickTurn();
-  }
-
-  deliverResult(hit) {
-    if (hit.outcome == "miss") {
-      this.log.push("")
-    }
-  }
-
-  playerUsedAction() {
-    this.pass(combatManager.player)
-  }
-
-  pass(entity) {
-    var currentCombatant = (this.isPlayerTurn) ? this.player : this.enemy;
-    if (entity == currentCombatant) {
-
-      if (entity.isDead) {
-        if (entity.isPlayer) {
-          console.log("Game over")
-        }
-        else {
-          console.log("Victory!")
-        }
-      }
-      else {
-        entity.onTurnEnd();
-        console.log(utils.format("{0}'s turn has ended.", entity.name))
-      }
-
-      if (!this.isPlayerTurn) // how did moving this fix the end/start issue wtf
-        this.round++;
-      this.isPlayerTurn = !this.isPlayerTurn;
-
-      setTimeout(this.tickTurn.bind(this), this.TURN_DELAY)
-      main.render();
-      // this.tickTurn();
-    }
-
-    main.app.render();
-  }
-
-  tickTurn() {
-    var entity = (this.isPlayerTurn) ? this.player : this.enemy;
-
-    if (entity.isDead) {
-      if (entity.isPlayer) {
-        setTimeout(() => {this.endCombat("defeat")}, this.TURN_DELAY)
-        // this.endCombat("defeat")
-      }
-      else {
-        setTimeout(() => {this.endCombat("win")}, this.TURN_DELAY)
-      }
-    }
-    else {
-      console.log(utils.format("{0}'s turn has started.", entity.name))
-      console.log(entity)
-      entity.onTurnStart();
-    }
-
-    main.app.render();
-  }
-
-  endCombat(reason) {
-    if (!this.inCombat)
-      return;
-    if (reason == "win") {
-      travel.state.areaProgress[this.area.id] += this.progressReward;
-
-      var xp = this.enemy.stats.xpReward;
-      var title = utils.format("{0} was defeated!", this.enemy.name)
-      
-      var desc = travel.rollLoot(this.enemy)
-
-      main.addPopup({
-        title: title,
-        description: desc,
-        buttons: [
-          {text: "ok", func: function(){
-            levelling.gainXp(xp);
-            if (travel.hasArtifact("bottled_glass")) {
-              let art = travel.getArtifact("bottled_glass")
-              let status = data.statuses[art.tuning.buff]
-              this.player.applyStatus(new statusTypeDict[status.behaviour](this, this.player, status, 3, false))
-            }
-            this.closeCombat()}.bind(this)}
-        ]
-      })
-    }
-    else {
-      this.log.push("You have been defeated and give up.")
-
-      setTimeout(() => {
-        this.closeCombat();
-        main.addPopup({
-          title: "DEFEAT",
-          description: "temp",
-          buttons: [
-            data.popupButtons.close,
-          ]
-        })
-      }, this.TURN_DELAY);
-
-
-    }
-  }
-
-  closeCombat() {
-    main.app.exitCombat();
-    this.enemy = null;
-    this.area = null;
-    this.inCombat = false;
-    this.player.removeCombatStatuses();
-    this.log.clear();
-  }
-
-  rollAccuracy(user, target, def) {
-    var userStats = user.getRealStats();
-    var targetStats = target.getRealStats();
-    var acc = userStats.acc * def.acc;
-
-    var dodge = (def.dodgeable) ? targetStats.dodge : 0;
-    var block = targetStats.block;
-    var roll = Math.random();
-
-    if (utils.checkRoll(block))
-      return "blocked";
-    else if (roll < (acc - dodge))
-      return "hit";
-    else if (roll < acc)
-      return "dodged"
-    else
-      return "miss"
-  }
-
-  // does not take def (or the enemy at all) into account
-  getAverageDmg(user, def) {
-    var dmg = user.getRealStats().dmg * def.mult;
-
-    return dmg;
-  }
-
-  sendStatusMsg(context, hit, status, fakeStatus) {
-    if (status == null)
-      status = fakeStatus;
-    
-    var msgs = (status.target.isPlayer) ? status.def.log.player : status.def.log.enemy;
-    var params = [];
-    var msg = msgs[context];
-
-    if (msg == null)
-      return;
-
-    for (let x in msg.params) {
-      console.log(msg.params)
-      switch(msg.params[x]) {
-        case "target":
-          params.push(status.target.name);
-          break;
-        case "user":
-          params.push(status.user.name);
-          break;
-        case "dmg":
-          params.push(hit.dmg);
-          break;
-        case "heal":
-          params.push(hit.heal);
-          break;
-        case "status":
-          params.push(status.def.name);
-          break;
-      }
-    }
-
-    let str = utils.format(msg.msg, ...params)
-
-    combatManager.log.push(str);
-  }
-
-  rollStatuses(hit, def) {
-    for (let x in def.statuses) {
-      let eff = def.statuses[x];
-      let empower = (eff.empowered != undefined) ? true : false
-      let possible = (empower) ? hit.empowered : (!hit.empowered) // require empowered hit for empowered effects
-      let chance = eff.chance;
-
-      // soccer moves have upgradeable status chances
-      if (def.soccerMove != null) {
-        if (def.special.bonusSuccessChancePerLevel != undefined) {
-          let save = travel.getMove(def.soccerMove)
-          chance += def.special.bonusSuccessChancePerLevel * (save.level - 1)
-        }
-      }
-
-      if (possible) {
-        if (utils.checkRoll(chance)) {
-          hit.statuses.push(eff);
-        }
-        else {
-          let fakeStatus = {
-            user: hit.user,
-            target: hit.target,
-            def: data.statuses[eff.id],
-          }
-          this.sendStatusMsg("failed", hit, fakeStatus)
-        }
-      }
-    }
-
-    return hit;
-  }
-
-  rollStatusOnlyHit(user, target, def, postProcessFunc) {
-    var hit = {
-      get rawDmg() {return utils.round(this._dmg, 1)},
-      set rawDmg(val) {
-        this._dmg = val;
-      },
-      get dmg() {return utils.round(this._dmg * this.target.dmgReduction, 1)},
-      set dmg(val) {this._dmg = val}, // legacy
-      crit: false,
-      dmgType: "default",
-      empowered: false,
-      user: user,
-      target: target,
-      skill: def,
-      outcome: "hit",
-      averageDmg: 0,
-      get heal() {return utils.round(this._heal)},
-      set heal(val) {this._heal = val},
-      statuses: [],
-    };
-    hit.rawDmg = 0;
-
-    console.log(postProcessFunc)
-    hit = (postProcessFunc != null) ? postProcessFunc(hit) : hit;
-    console.log(hit)
-    hit = this.rollStatuses(hit, def)
-
-    return hit;
-  }
-
-  rollDmg(user, target, def, postProcessFunc, dmgDefParam) {
-    var dmgDef = (dmgDefParam != undefined) ? dmgDefParam : def.dmg;
-    var hit = {
-      get rawDmg() {return utils.round(this._dmg, 1)},
-      set rawDmg(val) {
-        this._dmg = val;
-      },
-      get dmg() {return utils.round(this._dmg * this.target.dmgReduction, 1)},
-      set dmg(val) {this._dmg = val}, // legacy
-      crit: false,
-      dmgType: "default",
-      empowered: false,
-      user: user,
-      target: target,
-      skill: def,
-      outcome: this.rollAccuracy(user, target, dmgDef),
-      averageDmg: this.getAverageDmg(user, dmgDef),
-      get heal() {return utils.round(this._heal)},
-      set heal(val) {this._heal = val},
-      statuses: [],
-    };
-
-    if (dmgDef.type != undefined)
-      hit.dmgType = dmgDef.type;
-
-    // get user damage and multiply by skill's mult, and add some randomness through the skill's dmgRange attribute. 0.1 dmgRange = +-10% damage
-    hit.rawDmg = user.getRealStats().dmg * dmgDef.mult * utils.randomFromRangeFloat(1-dmgDef.range, 1+dmgDef.range);
-
-    if (utils.checkRoll(user.critChance)) {
-      console.log("Crit!")
-      hit.crit = true;
-      hit.rawDmg *= user.critMult;
-    }
-
-    hit = (postProcessFunc != null) ? postProcessFunc(hit) : hit;
-
-    // roll statuses
-    if (def != null) { // can only roll statuses from a skill def
-      hit = this.rollStatuses(hit, def)
-    }
-
-    if (hit.empowered)
-      console.log("Empowered hit:")
-    console.log(hit)
-    return hit;
-  }
+export var saveMetaData = {
+  protocol: data.global.saveProtocol,
+  version: data.global.version,
 }
-
-const scrollToRef = (ref) => {
-  //ref.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  // ref.current.scrollTop += 1000;
-}
-class Log {
-  msgs = [];
-  componentRef = null;
-
-  push(msg) {
-    this.msgs.push(msg)
-
-    if (this.componentRef != null)
-      scrollToRef(this.componentRef)
-  }
-
-  clear() {
-    this.msgs = [];
-  }
-}
-
 export var ballGame = new BallGame();
 export var stats = new Stats();
 export var colorManager = new ColorManager();
 export var ballManager = new BallManager();
 export var levelling = new Levelling();
 export var travel = new TravelManager();
+export var shoes = new ShoeManager(); // UH OHH!! RACING CONDITIONS!!
 export var combatManager = new CombatManager();
 export var main = new Main();
-export var config = {
-  preferLosses: false,
-  hideLogo: false,
-  winrateRounding: 2,
-}
+
+main.loadSave()
