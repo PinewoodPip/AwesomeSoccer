@@ -149,6 +149,7 @@ class App extends React.Component{
       data.global.production = false;
     }
 
+    Game.config.scaleAmount = utils.limitRange(parseFloat(Game.config.scaleAmount), 0.6, 1.1)
     // url param to reset scale if you fuck shit up
     if (params.get("resetScale") == "true") {
       Game.config.scaleAmount = 1;
