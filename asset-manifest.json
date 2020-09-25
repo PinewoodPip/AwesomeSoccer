@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/AwesomeSoccer/static/css/main.c13f9945.chunk.css",
-    "main.js": "/AwesomeSoccer/static/js/main.15129078.chunk.js",
-    "main.js.map": "/AwesomeSoccer/static/js/main.15129078.chunk.js.map",
+    "main.css": "/AwesomeSoccer/static/css/main.f452fdb7.chunk.css",
+    "main.js": "/AwesomeSoccer/static/js/main.5f278355.chunk.js",
+    "main.js.map": "/AwesomeSoccer/static/js/main.5f278355.chunk.js.map",
     "runtime-main.js": "/AwesomeSoccer/static/js/runtime-main.e7089ed2.js",
     "runtime-main.js.map": "/AwesomeSoccer/static/js/runtime-main.e7089ed2.js.map",
     "static/css/2.2935c573.chunk.css": "/AwesomeSoccer/static/css/2.2935c573.chunk.css",
-    "static/js/2.bcaf99c2.chunk.js": "/AwesomeSoccer/static/js/2.bcaf99c2.chunk.js",
-    "static/js/2.bcaf99c2.chunk.js.map": "/AwesomeSoccer/static/js/2.bcaf99c2.chunk.js.map",
+    "static/js/2.bf6c8950.chunk.js": "/AwesomeSoccer/static/js/2.bf6c8950.chunk.js",
+    "static/js/2.bf6c8950.chunk.js.map": "/AwesomeSoccer/static/js/2.bf6c8950.chunk.js.map",
     "index.html": "/AwesomeSoccer/index.html",
-    "precache-manifest.36a51ecf0f0820bddd405e661975d013.js": "/AwesomeSoccer/precache-manifest.36a51ecf0f0820bddd405e661975d013.js",
+    "precache-manifest.cb363d60389ca2a7e50abb6c850e69b1.js": "/AwesomeSoccer/precache-manifest.cb363d60389ca2a7e50abb6c850e69b1.js",
     "service-worker.js": "/AwesomeSoccer/service-worker.js",
     "static/css/2.2935c573.chunk.css.map": "/AwesomeSoccer/static/css/2.2935c573.chunk.css.map",
-    "static/css/main.c13f9945.chunk.css.map": "/AwesomeSoccer/static/css/main.c13f9945.chunk.css.map",
-    "static/js/2.bcaf99c2.chunk.js.LICENSE.txt": "/AwesomeSoccer/static/js/2.bcaf99c2.chunk.js.LICENSE.txt",
+    "static/css/main.f452fdb7.chunk.css.map": "/AwesomeSoccer/static/css/main.f452fdb7.chunk.css.map",
+    "static/js/2.bf6c8950.chunk.js.LICENSE.txt": "/AwesomeSoccer/static/js/2.bf6c8950.chunk.js.LICENSE.txt",
     "static/media/20XX.gif": "/AwesomeSoccer/static/media/20XX.a4280343.gif",
     "static/media/50chart.svg": "/AwesomeSoccer/static/media/50chart.33016fd0.svg",
     "static/media/8-star.svg": "/AwesomeSoccer/static/media/8-star.df1d5d4f.svg",
@@ -78,8 +78,8 @@
   "entrypoints": [
     "static/js/runtime-main.e7089ed2.js",
     "static/css/2.2935c573.chunk.css",
-    "static/js/2.bcaf99c2.chunk.js",
-    "static/css/main.c13f9945.chunk.css",
-    "static/js/main.15129078.chunk.js"
+    "static/js/2.bf6c8950.chunk.js",
+    "static/css/main.f452fdb7.chunk.css",
+    "static/js/main.5f278355.chunk.js"
   ]
 }
