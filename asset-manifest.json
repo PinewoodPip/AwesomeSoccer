@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/AwesomeSoccer/static/css/main.c13f9945.chunk.css",
-    "main.js": "/AwesomeSoccer/static/js/main.3a398c76.chunk.js",
-    "main.js.map": "/AwesomeSoccer/static/js/main.3a398c76.chunk.js.map",
+    "main.js": "/AwesomeSoccer/static/js/main.15129078.chunk.js",
+    "main.js.map": "/AwesomeSoccer/static/js/main.15129078.chunk.js.map",
     "runtime-main.js": "/AwesomeSoccer/static/js/runtime-main.e7089ed2.js",
     "runtime-main.js.map": "/AwesomeSoccer/static/js/runtime-main.e7089ed2.js.map",
     "static/css/2.2935c573.chunk.css": "/AwesomeSoccer/static/css/2.2935c573.chunk.css",
     "static/js/2.bcaf99c2.chunk.js": "/AwesomeSoccer/static/js/2.bcaf99c2.chunk.js",
     "static/js/2.bcaf99c2.chunk.js.map": "/AwesomeSoccer/static/js/2.bcaf99c2.chunk.js.map",
     "index.html": "/AwesomeSoccer/index.html",
-    "precache-manifest.7fc7169e69d8cdb9139daf7d7ffb694c.js": "/AwesomeSoccer/precache-manifest.7fc7169e69d8cdb9139daf7d7ffb694c.js",
+    "precache-manifest.36a51ecf0f0820bddd405e661975d013.js": "/AwesomeSoccer/precache-manifest.36a51ecf0f0820bddd405e661975d013.js",
     "service-worker.js": "/AwesomeSoccer/service-worker.js",
     "static/css/2.2935c573.chunk.css.map": "/AwesomeSoccer/static/css/2.2935c573.chunk.css.map",
     "static/css/main.c13f9945.chunk.css.map": "/AwesomeSoccer/static/css/main.c13f9945.chunk.css.map",
@@ -80,6 +80,6 @@
     "static/css/2.2935c573.chunk.css",
     "static/js/2.bcaf99c2.chunk.js",
     "static/css/main.c13f9945.chunk.css",
-    "static/js/main.3a398c76.chunk.js"
+    "static/js/main.15129078.chunk.js"
   ]
 }
