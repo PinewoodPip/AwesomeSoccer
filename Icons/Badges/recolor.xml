@@ -1,0 +1,182 @@
+<root>
+    <recolor name="2-dark-blue">
+        <color>
+            <find>008080</find>
+            <replace>006080</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>6cbad4</replace>
+        </color>
+    </recolor>
+    <recolor name="3-teal">
+        <color>
+            <find>008080</find>
+            <replace>25b386</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>51c9a3</replace>
+        </color>
+    </recolor>
+    <recolor name="4-swamp">
+        <color>
+            <find>008080</find>
+            <replace>3d8249</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>70c27f</replace>
+        </color>
+    </recolor>
+    <recolor name="5-nice-green">
+        <color>
+            <find>008080</find>
+            <replace>5abd2f</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>40692e</replace>
+        </color>
+    </recolor>
+    <recolor name="6-lemon-calid">
+        <color>
+            <find>008080</find>
+            <replace>c6cc54</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>d7db86</replace>
+        </color>
+    </recolor>
+    <recolor name="7-wooden">
+        <color>
+            <find>008080</find>
+            <replace>9e6c2e</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>d4a263</replace>
+        </color>
+    </recolor>
+    <recolor name="8-warm-desire">
+        <color>
+            <find>008080</find>
+            <replace>e65545</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>e07f75</replace>
+        </color>
+    </recolor>
+    <recolor name="9-odd-desire">
+        <color>
+            <find>008080</find>
+            <replace>e8487d</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>e37197</replace>
+        </color>
+    </recolor>
+    <recolor name="10-nightly">
+        <color>
+            <find>008080</find>
+            <replace>7a3ecf</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>9465d6</replace>
+        </color>
+    </recolor>
+    <recolor name="clay">
+        <color>
+            <find>008080</find>
+            <replace>eb4034</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>d45b53</replace>
+        </color>
+    </recolor>
+    <recolor name="nice-green">
+        <color>
+            <find>008080</find>
+            <replace>5abd2f</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>40692e</replace>
+        </color>
+    </recolor>
+    <recolor name="orangish-yellow">
+        <color>
+            <find>008080</find>
+            <replace>ffa200</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>ffbf4f</replace>
+        </color>
+    </recolor>
+    <recolor name="hazy">
+        <color>
+            <find>008080</find>
+            <replace>8d448b</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>8d448b</replace>
+        </color>
+    </recolor>
+    <recolor name="brownish">
+        <color>
+            <find>008080</find>
+            <replace>eda593</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>f3d3d3</replace>
+        </color>
+    </recolor>
+    <recolor name="jungle">
+        <color>
+            <find>008080</find>
+            <replace>207561</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>589167</replace>
+        </color>
+    </recolor>
+    <recolor name="dark-purple">
+        <color>
+            <find>008080</find>
+            <replace>382039</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>200f21</replace>
+        </color>
+    </recolor>
+    <recolor name="neon-purple">
+        <color>
+            <find>008080</find>
+            <replace>271645ff</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>4d2c89ff</replace>
+        </color>
+    </recolor>
+    <recolor name="pinkish">
+        <color>
+            <find>008080</find>
+            <replace>ff5555ff</replace>
+        </color>
+        <color>
+            <find>00ffff</find>
+            <replace>ff8080ff</replace>
+        </color>
+    </recolor>
+</root>
