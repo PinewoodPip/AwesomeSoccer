@@ -407,13 +407,13 @@ export class Main { // we use this to force React.js to render from game js
   save() {
     let save = this.getSave();
 
-    utils.save(save, "save")
+    utils.save(save, "saveReact")
   }
 
   resetSave() {
     if (window.confirm("Are you sure you want to wipe your save?")) {
       IGNORE_SAVE = true;
-      window.localStorage.setItem("save", null);
+      window.localStorage.setItem("saveReact", null);
       window.location.reload()
     }
   }
@@ -464,7 +464,7 @@ export class Main { // we use this to force React.js to render from game js
   }
 
   loadSave() {
-    let save = utils.load("save")
+    let save = utils.load("saveReact")
 
     try {
       console.log(save.meta)
