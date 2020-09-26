@@ -166,15 +166,17 @@ export class ShoeManager {
         return false;
     }
 
-    discardShoe(save, giveToCharity=true) {
-        if (this.isThisShoeEquipped(save)) {
+    discardShoe(save, giveToCharity=true, force=false) {
+        if (this.isThisShoeEquipped(save) && !force) {
             alert("Can't discard an equipped shoe!")
             return;
         }
 
         // warn when discarding shoes
-        if (!window.confirm("Are you sure you want to discard this shoe?")) {
-            return;
+        if (!force) {
+            if (!window.confirm("Are you sure you want to discard this shoe?")) {
+                return;
+            }
         }
         
         if (giveToCharity) {
@@ -270,7 +272,7 @@ export class ShoeManager {
         // reset forge interface and remove the sacrificed shoe
         this.forge.element1 = null;
         // this.state.owned = this.state.owned.filter((x) => {return x != this.forge.element2})
-        this.discardShoe(this.forge.element2, false)
+        this.discardShoe(this.forge.element2, false, true)
         this.forge.element2 = null;
 
         console.log(this.forge.result)

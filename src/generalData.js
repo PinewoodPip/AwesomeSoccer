@@ -819,10 +819,11 @@ export const skills = {
         }
     },
     self_reserve: {
-        base: "base_attack",
+        base: "base_no_dmg",
         name: "Self-Reserve",
         id: "self_reserve",
         behaviour: "self_buff_player",
+        target: "self",
         log: {
             autoLogDmg: false,
             use: {msg: "You self-reserve yourself and return to the bench!", params: []}
@@ -1756,6 +1757,7 @@ export const statuses = {
         soccerMove: "self_reserve",
         log: {
             player: {
+                apply: {msg: "", params: []},
             }
         },
         statMods: {
@@ -1772,8 +1774,7 @@ export const statuses = {
         soccerMove: "self_reserve",
         isEmpowered: true,
         log: {
-            player: {
-            }
+            player: {apply: {msg: "", params: []},}
         },
         statMods: {
             defense: 0.2,

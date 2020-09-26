@@ -73,6 +73,10 @@ better loot screen
 - fix dots not killing enemies
 - fix dots not ticking when stunned
 - chec why utils round rounds 0.9 to 1 with 1 places setting
+- dont consider lvl 1 moves for level bonus uses
+- make willpowerMechanics() into a callback function so we can reuse it better
+- show hp regen stat in tooltip for health stat
+- diminishing returns for defense
 
 -- KEY items
 - something that lets you view enemy stats in combat

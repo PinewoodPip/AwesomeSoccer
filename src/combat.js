@@ -778,7 +778,7 @@ class SkillGenericSelfBuffPlayer extends SkillGenericSelfBuff {
 
   willpowerMechanics(hit) {
     if (hit.skill.willpower.gain > 0) {
-      hit.user.gainWillpower(hit.skill.willpower.gain)
+      hit.user.gainWillpower(hit.skill.willpower.gain, hit.dmg, hit.averageDmg)
     }
     if (hit.skill.willpower.empowerable) {
       if (hit.user.willpower >= hit.skill.willpower.threshold && hit.skill.willpower.threshold > 0) {
@@ -786,6 +786,10 @@ class SkillGenericSelfBuffPlayer extends SkillGenericSelfBuff {
         hit.user.spendWillpower(hit.skill.willpower.drain)
       }
     }
+
+    if (hit.skill.special.sweatGain != undefined)
+      hit.user.gainSweat(hit.skill.special.sweatGain);
+
     return hit;
   }
 }
