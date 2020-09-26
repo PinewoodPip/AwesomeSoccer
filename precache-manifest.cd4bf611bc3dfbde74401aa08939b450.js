@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "a6e3157747841e22da5d2f72197f2ea8",
+    "revision": "4d356cb7d66733094ac1d8be6dc4ac7c",
     "url": "/AwesomeSoccer/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/AwesomeSoccer/static/css/2.2935c573.chunk.css"
   },
   {
-    "revision": "ac439e85d8ae8209c7db",
+    "revision": "b615e59bcb6069a24705",
     "url": "/AwesomeSoccer/static/css/main.f452fdb7.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/AwesomeSoccer/static/js/2.bf6c8950.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "ac439e85d8ae8209c7db",
-    "url": "/AwesomeSoccer/static/js/main.7be011de.chunk.js"
+    "revision": "b615e59bcb6069a24705",
+    "url": "/AwesomeSoccer/static/js/main.d04bfe55.chunk.js"
   },
   {
     "revision": "57676e7be7b0819d57b5",
