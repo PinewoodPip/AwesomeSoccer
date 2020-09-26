@@ -242,7 +242,7 @@ export class Entity {
     if (travel.hasArtifact("engraved_ring")) {
       let art = travel.getArtifact("engraved_ring")
 
-      let healing = this.maxHp * art.tuning.healingPerWillpower * this.willpower
+      let healing = this.maxHp * art.tuning.healingPerWillpower * amount
       combatManager.log.push("The Engraved Ring of Healing restores {0} health upon you!".format(healing))
       this.heal(healing)
     }

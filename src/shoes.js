@@ -172,11 +172,9 @@ export class ShoeManager {
             return;
         }
 
-        // warn when discarding shoes that you upgraded in any way
-        if (save.workAmount > 0) {
-            if (!window.confirm("Are you sure you want to discard this shoe?")) {
-                return;
-            }
+        // warn when discarding shoes
+        if (!window.confirm("Are you sure you want to discard this shoe?")) {
+            return;
         }
         
         if (giveToCharity) {

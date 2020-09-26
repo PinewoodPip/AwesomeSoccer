@@ -37,8 +37,8 @@ export class CombatManager {
   area;
 
   OOC_TIMER = 1000;
-  OOCWillpowerDrain = 0.02;
-  OOC_SWEAT_DRAIN = 0.02;
+  OOCWillpowerDrain = 0.03;
+  OOC_SWEAT_DRAIN = 0.03;
   TURN_DELAY = 1000;
 
   oocTick() {
@@ -47,7 +47,7 @@ export class CombatManager {
       let heal = combatManager.player.getRealStats().oocHealing;
 
       if (travel.hasArtifact("engraved_ring"))
-        heal += combatManager.player.maxHp * 0.04;
+        heal += combatManager.player.maxHp * travel.getArtifact("engraved_ring").tuning.OOCHealing;
         
       combatManager.player.heal(heal);
 
@@ -251,7 +251,7 @@ export class CombatManager {
   closeCombat(result, wasBoss=false) {
     main.app.exitCombat();
 
-    if (result == "win" && wasBoss && this.area.next != null && !travel.state.unlocks.areas.includes(this.area.next)) {
+    if (result == "win" && wasBoss && this.area.nextArea != null && !travel.state.unlocks.areas.includes(this.area.nextArea)) {
       travel.unlock("area", this.area.nextArea)
       travel.state.giftcards++;
 
@@ -280,8 +280,6 @@ export class CombatManager {
         ]
       })
     }
-
-    // if (this.enemy.)
 
     this.enemy = null;
     this.area = null;

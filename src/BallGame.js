@@ -275,20 +275,26 @@ class BallManager {
   }
 
   rollLootbox() {
-    if (stats.state.legs >= 3) {
+    if (stats.state.legs >= 2) {
       stats.state.lootboxesOpened++;
-      stats.state.legs -= 3;
+      stats.state.legs -= 2;
 
       var totalWeight = 0;
       for (var x in data.balls) {
-        totalWeight += data.balls[x].weight;
+        let mult = 1;
+        if (this.state.unlocked.includes(x))
+          mult = data.global.duplicateBallWeightMultiplier;
+        totalWeight += data.balls[x].weight * mult;
       }
 
       var seed = Math.random()*totalWeight;
       var chosenBall = null;
 
       for (var z in data.balls) {
-        seed -= data.balls[z].weight;
+        let mult = 1;
+        if (this.state.unlocked.includes(z))
+          mult = data.global.duplicateBallWeightMultiplier;
+        seed -= data.balls[z].weight * mult;
 
         if (seed <= 0) {
           chosenBall = data.balls[z];

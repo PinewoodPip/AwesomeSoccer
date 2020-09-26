@@ -24,6 +24,7 @@ export const global = {
     enemyXpMultiplier: 1,
     areaProgressNeededMultiplier: 1.4,
     areaProgressRefund: 0.5,
+    duplicateBallWeightMultiplier: 0.6,
 }
 
 export const emptyStatSheet = entityData.emptyStatSheet;
@@ -263,13 +264,13 @@ export const artifacts = {
         name: "Engraved Ring of Healing", // Fargoth? more like Faggot LOL
         id: "engraved_ring",
         description: <div>
-            <p>Heals you when you spend Willpower or win a fight. Increases healing when out of combat by +4% of your maximum HP per second.</p>
+            <p>When you spend Willpower, restore (Willpower Spent * 0.7)% of your health. Increases healing when out of combat by +3% of your maximum HP per second.</p>
         </div>,
         icon: images.artifacts["temp_ring.png"],
         tuning: {
             victoryHealing: 0.2,
-            OOCHealing: 4,
-            healingPerWillpower: 0.8, // restore 80% health if you use 100% willpower at once. OP?
+            OOCHealing: 3,
+            healingPerWillpower: 0.7, // restore 80% health if you use 100% willpower at once. OP?
         },
     },
     monocles_of_duality: {
@@ -642,7 +643,7 @@ export const skills = {
         },
         willpower: {
             gain: 0.2,
-            dmgBonus: 0.3
+            // dmgBonus: 0.3
         },
         special: {
             sweatGain: 0,
@@ -684,14 +685,14 @@ export const skills = {
             {id: "tinderbow_burn", chance: 0.95, duration: 3}
         ],
         dmg: {
-            mult: 0.6,
+            mult: 0.75,
             range: 0.1,
             acc: 0.9,
             dodgeable: true,
             type: "default",
         },
         willpower: {
-            dmgBonus: 0.4
+            // dmgBonus: 0.4
         }
     },
     nerfing_gun: {
@@ -715,7 +716,7 @@ export const skills = {
             type: "default",
         },
         willpower: {
-            dmgBonus: 0.4
+            // dmgBonus: 0.4
         }
     },
     sniper_rifle: {
@@ -729,14 +730,14 @@ export const skills = {
             use: {msg: "You bash {0} with your rifle, dealing {1} damage!", params: ["target", "dmg"]}
         },
         dmg: {
-            mult: 0.6,
+            mult: 0.7,
             range: 0.1,
             acc: 1.5,
             dodgeable: true,
             type: "default",
         },
         willpower: {
-            dmgBonus: 0.4
+            // dmgBonus: 0.4
         }
     },
     shield: {
@@ -809,7 +810,6 @@ export const skills = {
             empowerable: true,
             threshold: 0.5,
             drain: 0.3,
-            dmgBonus: 1,
         },
         special: {
             sweatGain: 0.7,
@@ -835,7 +835,6 @@ export const skills = {
             empowerable: true,
             threshold: 0.5,
             drain: 0.3,
-            dmgBonus: 1,
         },
         special: {
             sweatGain: 0.4,

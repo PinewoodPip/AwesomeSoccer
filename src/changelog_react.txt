@@ -84,6 +84,12 @@ better loot screen
 X base leg break chance feels too high
 - if player is spamming the ball they may miss popups. delay popup buttons from being active for a few secs?
 
+- 26/09/20
+X fix areas not getting unlocked
+X remove wp dmg bonus from most stuff
+X slight nerf to the ring (and bug fixes)
+X make wp/sweat decay faster ooc
+
 
 - 25/09/20
 X fix items not appearing in combat

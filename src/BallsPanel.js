@@ -24,7 +24,7 @@ export class BallsPanel extends React.Component {
     var lootboxTooltip = <div className="generic-tooltip">
       <p>Guaranteed to contain a ball reskin!</p>
       <p>WARNING: GAMBLING!</p>
-      <p>Costs 3 LP.</p>
+      <p>Costs 2 LP.</p>
       <p></p>
       <p>{"Lootboxes Opened: " + Game.stats.state.lootboxesOpened}</p>
     </div>
